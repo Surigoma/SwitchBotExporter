@@ -25,12 +25,23 @@ tasks:
       - test -z "$(gofmt -l cmd internal)" || { gofmt -l cmd internal; exit 1; }
       - go vet ./...
 
-  build-armv6:
-    desc: Build the standalone Raspberry Pi Zero W binary
+  build-linux:
+    desc: Cross-compile for Linux (ARCH=amd64, arm64, arm, etc.)
+    requires:
+      vars: [ARCH]
+    vars:
+      ARM_VERSION: '{{.ARM_VERSION | default "7"}}'
+      TARGET: '{{if eq .ARCH "arm"}}armv{{.ARM_VERSION}}{{else}}{{.ARCH}}{{end}}'
     env:
       GOOS: linux
-      GOARCH: arm
-      GOARM: '6'
+      GOARCH: '{{.ARCH}}'
+      GOARM: '{{if eq .ARCH "arm"}}{{.ARM_VERSION}}{{end}}'
       CGO_ENABLED: '0'
     cmds:
-      - go build -trimpath -ldflags '{{.LDFLAGS}}' -o dist/switchbot-exporter-linux-armv6 {{.APP}}
+      - go build -trimpath -ldflags '{{.LDFLAGS}}' -o 'dist/switchbot-exporter-linux-{{.TARGET}}' {{.APP}}
+
+  build-armv6:
+    desc: Build the standalone Raspberry Pi Zero W binary
+    cmds:
+      - task: build-linux
+        vars: {ARCH: arm, ARM_VERSION: '6'}

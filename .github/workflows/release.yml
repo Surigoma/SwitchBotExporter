@@ -1,0 +1,136 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing draft release tag to rebuild, or leave blank to only package
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      created: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
+      commit: ${{ steps.release.outputs.sha }}
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
+
+  package:
+    if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || needs.release-please.outputs.created == 'true') }}
+    needs: release-please
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GOFLAGS: -mod=readonly
+      GOTOOLCHAIN: local
+    outputs:
+      tag: ${{ steps.target.outputs.tag }}
+      commit: ${{ steps.package.outputs.commit }}
+    steps:
+      - name: Select build ref
+        id: target
+        env:
+          RELEASE_TAG: ${{ needs.release-please.outputs.tag || inputs.release_tag }}
+        run: |
+          if [[ -z "$RELEASE_TAG" ]]; then
+            echo "ref=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+          elif [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "ref=refs/tags/$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+            echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Expected a release tag such as v0.1.0"
+            exit 1
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.target.outputs.ref }}
+          persist-credentials: false
+
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+
+      - name: Install Task
+        run: |
+          go install github.com/go-task/task/v3/cmd/task@v3.45.4
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Package Linux releases
+        id: package
+        env:
+          RELEASE_COMMIT: ${{ needs.release-please.outputs.commit }}
+          RELEASE_TAG: ${{ steps.target.outputs.tag }}
+        run: |
+          commit=$(git rev-parse HEAD)
+          if [[ -n "$RELEASE_COMMIT" && "$commit" != "$RELEASE_COMMIT" ]]; then
+            echo "::error::The tag differs from the commit reported by Release Please"
+            exit 1
+          fi
+          bash scripts/build-linux.sh "${RELEASE_TAG:-dev}"
+          for binary in dist/switchbot-exporter-linux-*; do
+            tar -czf "$binary.tar.gz" -C dist "${binary##*/}" -C "$GITHUB_WORKSPACE" LICENSE
+          done
+          (cd dist && sha256sum switchbot-exporter-linux-*.tar.gz > SHA256SUMS)
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: switchbot-exporter-release
+          path: |
+            dist/switchbot-exporter-linux-*.tar.gz
+            dist/SHA256SUMS
+          if-no-files-found: error
+
+  attach:
+    if: github.ref == 'refs/heads/main' && needs.package.outputs.tag != ''
+    needs: package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ needs.package.outputs.tag }}
+          persist-credentials: false
+
+      - name: Attach artifacts to the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.package.outputs.tag }}
+          VERIFIED_COMMIT: ${{ needs.package.outputs.commit }}
+        run: |
+          if [[ "$(git rev-parse HEAD)" != "$VERIFIED_COMMIT" ]]; then
+            echo "::error::The release tag changed after the package was built"
+            exit 1
+          fi
+          if [[ "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" != true ]]; then
+            echo "::error::Release $RELEASE_TAG must exist and be a draft"
+            exit 1
+          fi
+          gh run download "$GITHUB_RUN_ID" --name switchbot-exporter-release --dir dist
+          (cd dist && sha256sum -c SHA256SUMS)
+          gh release upload "$RELEASE_TAG" --clobber \
+            dist/switchbot-exporter-linux-*.tar.gz dist/SHA256SUMS
