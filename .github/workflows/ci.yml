@@ -54,19 +54,7 @@ jobs:
       - name: Build and verify the ARMv6 binary
         run: |
           task build-armv6
-          binary=dist/switchbot-exporter-linux-armv6
-          header=$(readelf -h "$binary")
-          grep -Eq 'Class:[[:space:]]+ELF32' <<< "$header"
-          grep -Eq 'Machine:[[:space:]]+ARM' <<< "$header"
-          segments=$(readelf -l "$binary")
-          dynamic=$(readelf -d "$binary")
-          if grep -qw INTERP <<< "$segments" || grep -q '(NEEDED)' <<< "$dynamic"; then
-            echo "::error::ARMv6 binary requires a dynamic linker or shared libraries"
-            exit 1
-          fi
-          metadata=$(go version -m "$binary")
-          grep -qw GOARM=6 <<< "$metadata"
-          grep -qw CGO_ENABLED=0 <<< "$metadata"
+          bash scripts/verify-armv6.sh dist/switchbot-exporter-linux-armv6
 
       - name: Upload ARMv6 binary
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
