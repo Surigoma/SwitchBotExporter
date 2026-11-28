@@ -88,7 +88,10 @@ sudo journalctl -u switchbot-exporter.service -n 30 --no-pager
 
 ## 切替と切り戻し
 
-1. 旧サービスの Unit 元ファイルと drop-in を `systemctl show switchbot-exporter.service -p FragmentPath -p DropInPaths` で確認し、旧 Unit・Python スクリプト・名前表・必要な既存バイナリを退避する。旧 `/metrics` の系列を控える。
+1. `systemctl show switchbot-exporter.service -p FragmentPath -p DropInPaths -p WorkingDirectory` で旧サービスの設定を確認する。旧 Unit・drop-in・Python スクリプト・名前表・置き換える既存バイナリを退避する。旧版の名前表は旧 Unit の作業ディレクトリも確認し、Go 版へ引き継ぐ。バックアップ先と旧 `/metrics` の取得時刻を記録する。
 2. 同じアダプターを使う場合は旧サービスを停止した上で、Go 版を一時ポート（例 `127.0.0.1:18000`）で起動する。別アダプターを使える場合は並行比較できる。Prometheus 系列の厳密な比較には同じ入力を再生する [互換テスト](verification.md#検証項目) を使う。
-3. Go 版と Unit を [systemd の配備手順](#systemd-で稼働させる) に沿って配置する。Unit を再読み込みしてサービスを起動し、既定のポート・機器別系列・Grafana・PromQL を確認する。Bluetooth 障害からの復旧と長時間稼働は [初期リリースの確認項目](verification.md#初期リリースの確認項目) に沿って記録する。
-4. 起動できない、主要系列が欠ける、復旧しない場合は Go 版を停止し、退避した旧 Unit・drop-in・実行ファイルを元のパスへ戻す。`sudo systemctl daemon-reload` と `sudo systemctl start switchbot-exporter.service` を実行し、旧 `/metrics` の更新を確認する。名前表や Prometheus の既存時系列に形式変換は不要。
+3. Go 版と Unit を [systemd の配備手順](#systemd-で稼働させる) に沿って配置する。Unit を再読み込みしてサービスを起動し、`active`・`enabled`、ポート 8000 の応答、2 回以上のスキャン成功と機器別系列を確認する。旧版の `switchbot_update` が古い場合は、双方に存在する機器の系列名とラベルを比較し、照合できた台数を記録する。
+4. `sudo systemctl restart switchbot-exporter.service` で再起動し、PID が変わり、最終成功時刻と機器別系列が再び更新されることを確認する。Grafana・PromQL の表示、Bluetooth 障害からの復旧、長時間稼働は [初期リリースの確認項目](verification.md#初期リリースの確認項目) に沿って記録する。
+5. 起動できない、主要系列が欠ける、復旧しない場合は Go 版を停止し、退避した旧 Unit・drop-in・実行ファイルを元のパスへ戻す。`sudo systemctl daemon-reload` と `sudo systemctl start switchbot-exporter.service` を実行し、旧 `/metrics` の更新を確認する。名前表や Prometheus の既存時系列に形式変換は不要。
+
+Pi Zero W での切替と再起動の測定結果は [本番切替の記録](verification.md#raspberry-pi-zero-w-への本番切替) を参照する。
