@@ -68,3 +68,12 @@ func ExtendedTime(payload []byte, high bool) int32 {
 	}
 	return value
 }
+
+// Network reads bits 6:4 of the light status byte.
+func Network(value uint8) string {
+	states := [...]string{"wifi connecting", "iot connecting", "iot connected"}
+	if index := (value >> 4) & 7; int(index) < len(states) {
+		return states[index]
+	}
+	return "Undefined"
+}

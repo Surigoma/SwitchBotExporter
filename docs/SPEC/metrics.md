@@ -26,8 +26,17 @@
 | `q` | `switchbot_ceiling_light` | `_sequence` → sequence_num (G)、`_level` → level (G)、`_status` → status (G)、`_small_status` → small_status (G)、`_color_temp` → color_temp (G) |
 | `s` | `switchbot_motion_sensor` | `_latest` → latest (G)、`_led_status` → LED_state (G)、`_iot_status` → IOT_state (G)、`_PIR` → PIR (E)、`_light_intensity` → light_intensity (E) |
 | `v` | `switchbot_hub_2` | `_sequence` → sequence_num (G)、`_light_level` → light_level (G)、`_temp` → temp (G)、`_humid` → hum (G) |
+| `i`、`I` | `switchbot_meter_plus` | `_temp` → temp (G)、`_humid` → hum (G) |
+| `4`、`0x14` | `switchbot_meter_pro` | `_temp` → temp (G)、`_humid` → hum (G) |
+| `5`、`0x15` | `switchbot_meter_pro_co2` | `_temp` → temp (G)、`_humid` → hum (G)、`_co2` → co2 (G) |
+| `e`、`E` | `switchbot_humidifier` | `_on` → on (G)、`_mode` → mode (E)、`_target_humid` → target_humidity (G、`target` のときだけ更新) |
+| `u`、`U` | `switchbot_color_bulb` | `_sequence` → sequence_num (G)、`_on` → on (G)、`_level` → level (G)、`_light_state` → light_state (E) |
+| `r`、`R` | `switchbot_led_strip` | `_sequence` → sequence_num (G)、`_on` → on (G)、`_level` → level (G)、`_mode` → mode (E) |
+| `g`、`G`、`j`、`J` | `switchbot_plug_mini` | `_sequence` → sequence_num (G)、`_on` → on (G)、`_overload` → overload (G)、`_wifi_rssi` → wifi_rssi (G)、`_power` → power (G) |
+| `$`、`0x04` | `switchbot_lock_pro` | `_sequence` → sequence_num (G)、`_door_open` → door_open (G)、`_charging` → charging (G)、`_lock` → lock (E) |
+| `x`、`X` | `switchbot_blind_tilt` | `_tilt` → tilt (G)、`_light_level` → light_level (G)、`_movement` → movement (E) |
 
-Hub Mini と未対応型は共通系列も出さない。真偽値は true を 1、false を 0 とする。既存デコーダーが取得していても表に載らないフィールドは CLI に出力する。
+Hub Mini と未対応型、識別だけの型は共通系列も出さない。真偽値は true を 1、false を 0 とする。既存デコーダーが取得していても表に載らないフィールドは CLI に出力する。
 
 ## Enum の状態表
 
@@ -39,6 +48,11 @@ Hub Mini と未対応型は共通系列も出さない。真偽値は true を 1
 | Smart Lock の Lock（bit 値 0–7 の順） | `Locked`、`Unlocked`、`Locking`、`Unlocking`、`LockingStop(Stuck)`、`UnlockingStop(Stuck)`、`Not fully locked(only for EU Lock Type)`、`Undefined` |
 | Curtain と Curtain 3 の Movement | `stationary`、`movement` |
 | Motion Sensor の Light Intensity | `Reserve`、`dark`、`bright` |
+| Lock Pro の Lock（bit 値 0–7 の順、8 以上は `Undefined`） | Smart Lock の 0–6 と同じ、`Half locked(only for Lock Ultra EU)`、`Undefined` |
+| Humidifier の Mode | `auto`、`low`、`medium`、`high`、`target`、`Undefined` |
+| Color Bulb の Light State | `Undefined`、`white`、`color`、`dynamic` |
+| LED Strip Light の Mode | `Undefined`、`color`、`scene`、`music`、`controller` |
+| Blind Tilt の Movement | `stationary`、`movement` |
 
 取得済みの Enum ごとに定義内の全状態を並べ、現在値の系列を 1、他の系列を 0 にする。例えば Curtain 3 の停止時は以下の 2 本を出す。
 
