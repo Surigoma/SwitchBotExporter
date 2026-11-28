@@ -1,0 +1,16 @@
+[Unit]
+Description=SwitchBot BLE Prometheus Exporter
+After=bluetooth.service
+Wants=bluetooth.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/usr/local/switchbot
+ExecStart=/usr/local/bin/switchbot-exporter
+Restart=always
+RestartSec=5
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

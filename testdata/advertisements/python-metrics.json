@@ -1,0 +1,786 @@
+[
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_bot",
+      "mac": "00:11:22:33:44:48",
+      "name": "example-72"
+    },
+    "value": 117
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_bot",
+      "mac": "00:11:22:33:44:48",
+      "name": "example-72"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_bot",
+      "mac": "00:11:22:33:44:48",
+      "name": "example-72"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_button",
+      "mac": "00:11:22:33:44:62",
+      "name": "example-98"
+    },
+    "value": 5
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_button",
+      "mac": "00:11:22:33:44:62",
+      "name": "example-98"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_button",
+      "mac": "00:11:22:33:44:62",
+      "name": "example-98"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_meter_th",
+      "mac": "00:11:22:33:44:54",
+      "name": "example-84"
+    },
+    "value": 50
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_meter_th",
+      "mac": "00:11:22:33:44:54",
+      "name": "example-84"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_meter_th",
+      "mac": "00:11:22:33:44:54",
+      "name": "example-84"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_meter_th_temp",
+    "labels": {
+      "mac": "00:11:22:33:44:54",
+      "name": "example-84"
+    },
+    "value": 40.5
+  },
+  {
+    "name": "switchbot_meter_th_humid",
+    "labels": {
+      "mac": "00:11:22:33:44:54",
+      "name": "example-84"
+    },
+    "value": 50
+  },
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_contact_sensor",
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100"
+    },
+    "value": 36
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_contact_sensor",
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_contact_sensor",
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_contact_sensor_state_PIR",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100",
+      "switchbot_contact_sensor_state_PIR": "No one moves"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_contact_sensor_state_PIR",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100",
+      "switchbot_contact_sensor_state_PIR": "Someone is moving"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_contact_sensor_state_HAL",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100",
+      "switchbot_contact_sensor_state_HAL": "door close"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_contact_sensor_state_HAL",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100",
+      "switchbot_contact_sensor_state_HAL": "door open"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_contact_sensor_state_HAL",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100",
+      "switchbot_contact_sensor_state_HAL": "timeout not close"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_contact_sensor_state_HAL",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100",
+      "switchbot_contact_sensor_state_HAL": "undefined"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_contact_sensor_light_level",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100",
+      "switchbot_contact_sensor_light_level": "dark"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_contact_sensor_light_level",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100",
+      "switchbot_contact_sensor_light_level": "light"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_contact_sensor_act_entrances",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100"
+    },
+    "value": 2
+  },
+  {
+    "name": "switchbot_contact_sensor_act_go_out",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100"
+    },
+    "value": 2
+  },
+  {
+    "name": "switchbot_contact_sensor_act_button_push",
+    "labels": {
+      "mac": "00:11:22:33:44:64",
+      "name": "example-100"
+    },
+    "value": 6
+  },
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_meter_outdoor",
+      "mac": "00:11:22:33:44:77",
+      "name": "example-119"
+    },
+    "value": 32
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_meter_outdoor",
+      "mac": "00:11:22:33:44:77",
+      "name": "example-119"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_meter_outdoor",
+      "mac": "00:11:22:33:44:77",
+      "name": "example-119"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_meter_outdoor_temp",
+    "labels": {
+      "mac": "00:11:22:33:44:77",
+      "name": "example-119"
+    },
+    "value": -71.9
+  },
+  {
+    "name": "switchbot_meter_outdoor_humid",
+    "labels": {
+      "mac": "00:11:22:33:44:77",
+      "name": "example-119"
+    },
+    "value": 4
+  },
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_smartlock",
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111"
+    },
+    "value": 105
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_smartlock",
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_smartlock",
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_smartlock_sequence",
+    "labels": {
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111"
+    },
+    "value": 220
+  },
+  {
+    "name": "switchbot_smartlock_lock",
+    "labels": {
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111",
+      "switchbot_smartlock_lock": "Locked"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_smartlock_lock",
+    "labels": {
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111",
+      "switchbot_smartlock_lock": "Unlocked"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_smartlock_lock",
+    "labels": {
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111",
+      "switchbot_smartlock_lock": "Locking"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_smartlock_lock",
+    "labels": {
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111",
+      "switchbot_smartlock_lock": "Unlocking"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_smartlock_lock",
+    "labels": {
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111",
+      "switchbot_smartlock_lock": "LockingStop(Stuck)"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_smartlock_lock",
+    "labels": {
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111",
+      "switchbot_smartlock_lock": "UnlockingStop(Stuck)"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_smartlock_lock",
+    "labels": {
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111",
+      "switchbot_smartlock_lock": "Not fully locked(only for EU Lock Type)"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_smartlock_lock",
+    "labels": {
+      "mac": "00:11:22:33:44:6f",
+      "name": "example-111",
+      "switchbot_smartlock_lock": "Undefined"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_keypad_touch",
+      "mac": "00:11:22:33:44:79",
+      "name": "example-121"
+    },
+    "value": 37
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_keypad_touch",
+      "mac": "00:11:22:33:44:79",
+      "name": "example-121"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_keypad_touch",
+      "mac": "00:11:22:33:44:79",
+      "name": "example-121"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_curtain",
+      "mac": "00:11:22:33:44:63",
+      "name": "example-99"
+    },
+    "value": 60
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_curtain",
+      "mac": "00:11:22:33:44:63",
+      "name": "example-99"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_curtain",
+      "mac": "00:11:22:33:44:63",
+      "name": "example-99"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_curtain_position",
+    "labels": {
+      "mac": "00:11:22:33:44:63",
+      "name": "example-99"
+    },
+    "value": 30
+  },
+  {
+    "name": "switchbot_curtain_light_level",
+    "labels": {
+      "mac": "00:11:22:33:44:63",
+      "name": "example-99"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_curtain_movement",
+    "labels": {
+      "mac": "00:11:22:33:44:63",
+      "name": "example-99",
+      "switchbot_curtain_movement": "stationary"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_curtain_movement",
+    "labels": {
+      "mac": "00:11:22:33:44:63",
+      "name": "example-99",
+      "switchbot_curtain_movement": "movement"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_curtain3",
+      "mac": "00:11:22:33:44:5b",
+      "name": "example-91"
+    },
+    "value": 67
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_curtain3",
+      "mac": "00:11:22:33:44:5b",
+      "name": "example-91"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_curtain3",
+      "mac": "00:11:22:33:44:5b",
+      "name": "example-91"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_curtain3_position",
+    "labels": {
+      "mac": "00:11:22:33:44:5b",
+      "name": "example-91"
+    },
+    "value": 39
+  },
+  {
+    "name": "switchbot_curtain3_light_level",
+    "labels": {
+      "mac": "00:11:22:33:44:5b",
+      "name": "example-91"
+    },
+    "value": 12
+  },
+  {
+    "name": "switchbot_curtain3_movement",
+    "labels": {
+      "mac": "00:11:22:33:44:5b",
+      "name": "example-91",
+      "switchbot_curtain3_movement": "stationary"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_curtain3_movement",
+    "labels": {
+      "mac": "00:11:22:33:44:5b",
+      "name": "example-91",
+      "switchbot_curtain3_movement": "movement"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_curtain3",
+      "mac": "00:11:22:33:44:7b",
+      "name": "example-123"
+    },
+    "value": 103
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_curtain3",
+      "mac": "00:11:22:33:44:7b",
+      "name": "example-123"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_curtain3",
+      "mac": "00:11:22:33:44:7b",
+      "name": "example-123"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_curtain3_position",
+    "labels": {
+      "mac": "00:11:22:33:44:7b",
+      "name": "example-123"
+    },
+    "value": 84
+  },
+  {
+    "name": "switchbot_curtain3_light_level",
+    "labels": {
+      "mac": "00:11:22:33:44:7b",
+      "name": "example-123"
+    },
+    "value": 5
+  },
+  {
+    "name": "switchbot_curtain3_movement",
+    "labels": {
+      "mac": "00:11:22:33:44:7b",
+      "name": "example-123",
+      "switchbot_curtain3_movement": "stationary"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_curtain3_movement",
+    "labels": {
+      "mac": "00:11:22:33:44:7b",
+      "name": "example-123",
+      "switchbot_curtain3_movement": "movement"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_ceiling_light",
+      "mac": "00:11:22:33:44:71",
+      "name": "example-113"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_ceiling_light",
+      "mac": "00:11:22:33:44:71",
+      "name": "example-113"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_ceiling_light_sequence",
+    "labels": {
+      "mac": "00:11:22:33:44:71",
+      "name": "example-113"
+    },
+    "value": 148
+  },
+  {
+    "name": "switchbot_ceiling_light_level",
+    "labels": {
+      "mac": "00:11:22:33:44:71",
+      "name": "example-113"
+    },
+    "value": 15
+  },
+  {
+    "name": "switchbot_ceiling_light_status",
+    "labels": {
+      "mac": "00:11:22:33:44:71",
+      "name": "example-113"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_ceiling_light_small_status",
+    "labels": {
+      "mac": "00:11:22:33:44:71",
+      "name": "example-113"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_ceiling_light_color_temp",
+    "labels": {
+      "mac": "00:11:22:33:44:71",
+      "name": "example-113"
+    },
+    "value": 446
+  },
+  {
+    "name": "switchbot_batt",
+    "labels": {
+      "key": "switchbot_motion_sensor",
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115"
+    },
+    "value": 124
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_motion_sensor",
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_motion_sensor",
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_motion_sensor_latest",
+    "labels": {
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115"
+    },
+    "value": 78814
+  },
+  {
+    "name": "switchbot_motion_sensor_led_status",
+    "labels": {
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_motion_sensor_iot_status",
+    "labels": {
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_motion_sensor_PIR",
+    "labels": {
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115",
+      "switchbot_motion_sensor_PIR": "No one moves"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_motion_sensor_PIR",
+    "labels": {
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115",
+      "switchbot_motion_sensor_PIR": "Someone is moving"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_motion_sensor_light_intensity",
+    "labels": {
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115",
+      "switchbot_motion_sensor_light_intensity": "Reserve"
+    },
+    "value": 1
+  },
+  {
+    "name": "switchbot_motion_sensor_light_intensity",
+    "labels": {
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115",
+      "switchbot_motion_sensor_light_intensity": "dark"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_motion_sensor_light_intensity",
+    "labels": {
+      "mac": "00:11:22:33:44:73",
+      "name": "example-115",
+      "switchbot_motion_sensor_light_intensity": "bright"
+    },
+    "value": 0
+  },
+  {
+    "name": "switchbot_rssi",
+    "labels": {
+      "key": "switchbot_hub_2",
+      "mac": "00:11:22:33:44:76",
+      "name": "example-118"
+    },
+    "value": -55
+  },
+  {
+    "name": "switchbot_update",
+    "labels": {
+      "key": "switchbot_hub_2",
+      "mac": "00:11:22:33:44:76",
+      "name": "example-118"
+    },
+    "value": 100
+  },
+  {
+    "name": "switchbot_hub_2_sequence",
+    "labels": {
+      "mac": "00:11:22:33:44:76",
+      "name": "example-118"
+    },
+    "value": 252
+  },
+  {
+    "name": "switchbot_hub_2_light_level",
+    "labels": {
+      "mac": "00:11:22:33:44:76",
+      "name": "example-118"
+    },
+    "value": 13
+  },
+  {
+    "name": "switchbot_hub_2_temp",
+    "labels": {
+      "mac": "00:11:22:33:44:76",
+      "name": "example-118"
+    },
+    "value": 3.3
+  },
+  {
+    "name": "switchbot_hub_2_humid",
+    "labels": {
+      "mac": "00:11:22:33:44:76",
+      "name": "example-118"
+    },
+    "value": 82
+  }
+]

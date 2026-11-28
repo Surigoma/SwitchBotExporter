@@ -1,0 +1,36 @@
+version: '3'
+
+vars:
+  APP: ./cmd/switchbot-exporter
+  VERSION: dev
+  COMMIT:
+    sh: git rev-parse --short HEAD 2>/dev/null || echo unknown
+  BUILD_DATE: '{{dateInZone "2006-01-02T15:04:05Z" now "UTC"}}'
+  LDFLAGS: '-X main.version={{.VERSION}} -X main.gitCommit={{.COMMIT}} -X main.buildDate={{.BUILD_DATE}}'
+
+tasks:
+  build:
+    desc: Build SwitchBot Exporter for the current platform
+    cmds:
+      - go build -trimpath -ldflags '{{.LDFLAGS}}' -o 'dist/switchbot-exporter{{if eq OS "windows"}}.exe{{end}}' {{.APP}}
+
+  test:
+    desc: Run Go tests
+    cmds:
+      - go test ./...
+
+  lint:
+    desc: Check formatting and run go vet
+    cmds:
+      - test -z "$(gofmt -l cmd internal)" || { gofmt -l cmd internal; exit 1; }
+      - go vet ./...
+
+  build-armv6:
+    desc: Build the standalone Raspberry Pi Zero W binary
+    env:
+      GOOS: linux
+      GOARCH: arm
+      GOARM: '6'
+      CGO_ENABLED: '0'
+    cmds:
+      - go build -trimpath -ldflags '{{.LDFLAGS}}' -o dist/switchbot-exporter-linux-armv6 {{.APP}}

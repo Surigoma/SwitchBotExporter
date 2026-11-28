@@ -1,0 +1,638 @@
+[
+  {
+    "kind": "H",
+    "adType": 22,
+    "payload": "480000",
+    "data": {
+      "enc": "no encryption",
+      "mode": "one state mode",
+      "state": "on",
+      "commit_flag": "service data no data update",
+      "group": [],
+      "sync_utc": "no need to synchronize",
+      "battery": 0
+    }
+  },
+  {
+    "kind": "H",
+    "adType": 22,
+    "payload": "c8ffff",
+    "data": {
+      "enc": "encryption algorithm 3",
+      "mode": "on/off state mode",
+      "state": "off",
+      "commit_flag": "service data has data update",
+      "group": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "sync_utc": "the Device has passed a time synchronization cycle (10 days by default) and requires a time synchronization",
+      "battery": 127
+    }
+  },
+  {
+    "kind": "H",
+    "adType": 22,
+    "payload": "c8bff5",
+    "data": {
+      "enc": "encryption algorithm 3",
+      "mode": "on/off state mode",
+      "state": "on",
+      "commit_flag": "service data has data update",
+      "group": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "sync_utc": "the Device has passed a time synchronization cycle (10 days by default) and requires a time synchronization",
+      "battery": 117
+    }
+  },
+  {
+    "kind": "b",
+    "adType": 22,
+    "payload": "620000",
+    "data": {
+      "enc": "no encryption",
+      "battery": 0
+    }
+  },
+  {
+    "kind": "b",
+    "adType": 22,
+    "payload": "e2ffff",
+    "data": {
+      "enc": "encryption algorithm 3",
+      "battery": 127
+    }
+  },
+  {
+    "kind": "b",
+    "adType": 22,
+    "payload": "620005",
+    "data": {
+      "enc": "no encryption",
+      "battery": 5
+    }
+  },
+  {
+    "kind": "T",
+    "adType": 22,
+    "payload": "540000000000",
+    "data": {
+      "group": [],
+      "battery": 0,
+      "alert": {
+        "temp": "no alert",
+        "hum": "no alert"
+      },
+      "temp": -0.0,
+      "hum": 0
+    }
+  },
+  {
+    "kind": "T",
+    "adType": 22,
+    "payload": "d4ffffffffff",
+    "data": {
+      "group": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "battery": 127,
+      "alert": {
+        "temp": "temp alert",
+        "hum": "humidity alert"
+      },
+      "temp": 53.61111111111111,
+      "hum": 127
+    }
+  },
+  {
+    "kind": "T",
+    "adType": 22,
+    "payload": "547532dfa732",
+    "data": {
+      "group": [
+        "A",
+        "C"
+      ],
+      "battery": 50,
+      "alert": {
+        "temp": "temp alert",
+        "hum": "low humidity alert"
+      },
+      "temp": 40.5,
+      "hum": 50
+    }
+  },
+  {
+    "kind": "m",
+    "adType": 255,
+    "payload": "00000000000000000000000000",
+    "data": {
+      "latest_time": 0
+    }
+  },
+  {
+    "kind": "m",
+    "adType": 255,
+    "payload": "ffffffffffffffffffffffffff",
+    "data": {
+      "latest_time": 1099511627775
+    }
+  },
+  {
+    "kind": "m",
+    "adType": 255,
+    "payload": "3d255ebb4a6f4ec54776453a64",
+    "data": {
+      "latest_time": 306926926436
+    }
+  },
+  {
+    "kind": "d",
+    "adType": 22,
+    "payload": "640000000000000000",
+    "data": {
+      "enc": "No encryption",
+      "scope_tested": "Not tested",
+      "state": {
+        "PIR": "No one moves",
+        "HAL": "door close"
+      },
+      "latest_trigger": {
+        "PIR": 0,
+        "HAL": 0
+      },
+      "battery": 0,
+      "light_level": "dark",
+      "act_counter": {
+        "entrances": 0,
+        "go_out": 0,
+        "button_push": 0
+      }
+    }
+  },
+  {
+    "kind": "d",
+    "adType": 22,
+    "payload": "e4ffffffffffffffff",
+    "data": {
+      "enc": "With encryption, encryption method 1",
+      "scope_tested": "Tested",
+      "state": {
+        "PIR": "Someone is moving",
+        "HAL": "undefined"
+      },
+      "latest_trigger": {
+        "PIR": -1,
+        "HAL": -1
+      },
+      "battery": 127,
+      "light_level": "light",
+      "act_counter": {
+        "entrances": 3,
+        "go_out": 3,
+        "button_push": 7
+      }
+    }
+  },
+  {
+    "kind": "d",
+    "adType": 22,
+    "payload": "e4f9a45496efb901b6",
+    "data": {
+      "enc": "With encryption, encryption method 1",
+      "scope_tested": "Tested",
+      "state": {
+        "PIR": "Someone is moving",
+        "HAL": "timeout not close"
+      },
+      "latest_trigger": {
+        "PIR": 38639,
+        "HAL": 112897
+      },
+      "battery": 36,
+      "light_level": "dark",
+      "act_counter": {
+        "entrances": 2,
+        "go_out": 2,
+        "button_push": 6
+      }
+    }
+  },
+  {
+    "kind": "w",
+    "adType": 22,
+    "payload": "770000",
+    "data": {
+      "battery": 0
+    }
+  },
+  {
+    "kind": "w",
+    "adType": 22,
+    "payload": "f7ffff",
+    "data": {
+      "battery": 127
+    }
+  },
+  {
+    "kind": "w",
+    "adType": 22,
+    "payload": "770720",
+    "data": {
+      "battery": 32
+    }
+  },
+  {
+    "kind": "w",
+    "adType": 255,
+    "payload": "0000000000000000000000",
+    "data": {
+      "sequence_num": 0,
+      "temp": -0.0,
+      "hum": 0
+    }
+  },
+  {
+    "kind": "w",
+    "adType": 255,
+    "payload": "ffffffffffffffffffffff",
+    "data": {
+      "sequence_num": 255,
+      "temp": 53.61111111111111,
+      "hum": 127
+    }
+  },
+  {
+    "kind": "w",
+    "adType": 255,
+    "payload": "1d8284cefd3c55d1f94704",
+    "data": {
+      "sequence_num": 85,
+      "temp": -71.9,
+      "hum": 4
+    }
+  },
+  {
+    "kind": "o",
+    "adType": 22,
+    "payload": "6f0000",
+    "data": {
+      "battery": 0
+    }
+  },
+  {
+    "kind": "o",
+    "adType": 22,
+    "payload": "efffff",
+    "data": {
+      "battery": 127
+    }
+  },
+  {
+    "kind": "o",
+    "adType": 22,
+    "payload": "6f98e9",
+    "data": {
+      "battery": 105
+    }
+  },
+  {
+    "kind": "o",
+    "adType": 255,
+    "payload": "000000000000000000",
+    "data": {
+      "sequence_num": 0,
+      "lock_info": {
+        "calibrated": false,
+        "update_source": "primary_lock",
+        "status": {
+          "lock": "Locked",
+          "door": "closed"
+        }
+      },
+      "config": {
+        "double_lock_mode": false,
+        "unclosed_door_timeout_alarm": false,
+        "pause_automatic_locking": "inactived"
+      }
+    }
+  },
+  {
+    "kind": "o",
+    "adType": 255,
+    "payload": "ffffffffffffffffff",
+    "data": {
+      "sequence_num": 255,
+      "lock_info": {
+        "calibrated": true,
+        "update_source": "secondary_lock",
+        "status": {
+          "lock": "Undefined",
+          "door": "opened"
+        }
+      },
+      "config": {
+        "double_lock_mode": true,
+        "unclosed_door_timeout_alarm": true,
+        "pause_automatic_locking": "activated"
+      }
+    }
+  },
+  {
+    "kind": "o",
+    "adType": 255,
+    "payload": "ea70ac2a0fcbdc1ae5",
+    "data": {
+      "sequence_num": 220,
+      "lock_info": {
+        "calibrated": false,
+        "update_source": "secondary_lock",
+        "status": {
+          "lock": "Unlocked",
+          "door": "closed"
+        }
+      },
+      "config": {
+        "double_lock_mode": true,
+        "unclosed_door_timeout_alarm": true,
+        "pause_automatic_locking": "inactived"
+      }
+    }
+  },
+  {
+    "kind": "y",
+    "adType": 22,
+    "payload": "790000",
+    "data": {
+      "battery": 0
+    }
+  },
+  {
+    "kind": "y",
+    "adType": 22,
+    "payload": "f9ffff",
+    "data": {
+      "battery": 127
+    }
+  },
+  {
+    "kind": "y",
+    "adType": 22,
+    "payload": "79a725",
+    "data": {
+      "battery": 37
+    }
+  },
+  {
+    "kind": "c",
+    "adType": 22,
+    "payload": "6300000000",
+    "data": {
+      "allow_connection": false,
+      "calibration": "not calibrated",
+      "battery": 0,
+      "movement": "stationary",
+      "position": 0,
+      "light_level": 0,
+      "device_chain": 0
+    }
+  },
+  {
+    "kind": "c",
+    "adType": 22,
+    "payload": "e3ffffffff",
+    "data": {
+      "allow_connection": true,
+      "calibration": "calibrated",
+      "battery": 127,
+      "movement": "movement",
+      "position": 127,
+      "light_level": 15,
+      "device_chain": 15
+    }
+  },
+  {
+    "kind": "c",
+    "adType": 22,
+    "payload": "63e23c1e13",
+    "data": {
+      "allow_connection": true,
+      "calibration": "calibrated",
+      "battery": 60,
+      "movement": "stationary",
+      "position": 30,
+      "light_level": 1,
+      "device_chain": 3
+    }
+  },
+  {
+    "kind": "[",
+    "adType": 22,
+    "payload": "5b00000000",
+    "data": {
+      "direction": "left",
+      "calibration": "not calibrated",
+      "battery": 0,
+      "movement": "stationary",
+      "position": 0,
+      "light_level": 0,
+      "device_chain": 0
+    }
+  },
+  {
+    "kind": "[",
+    "adType": 22,
+    "payload": "dbffffffff",
+    "data": {
+      "direction": "right",
+      "calibration": "calibrated",
+      "battery": 127,
+      "movement": "movement",
+      "position": 127,
+      "light_level": 15,
+      "device_chain": 15
+    }
+  },
+  {
+    "kind": "[",
+    "adType": 22,
+    "payload": "dba1c3a7c0",
+    "data": {
+      "direction": "right",
+      "calibration": "not calibrated",
+      "battery": 67,
+      "movement": "movement",
+      "position": 39,
+      "light_level": 12,
+      "device_chain": 0
+    }
+  },
+  {
+    "kind": "{",
+    "adType": 22,
+    "payload": "7b00000000",
+    "data": {
+      "direction": "left",
+      "calibration": "not calibrated",
+      "battery": 0,
+      "movement": "stationary",
+      "position": 0,
+      "light_level": 0,
+      "device_chain": 0
+    }
+  },
+  {
+    "kind": "{",
+    "adType": 22,
+    "payload": "fbffffffff",
+    "data": {
+      "direction": "right",
+      "calibration": "calibrated",
+      "battery": 127,
+      "movement": "movement",
+      "position": 127,
+      "light_level": 15,
+      "device_chain": 15
+    }
+  },
+  {
+    "kind": "{",
+    "adType": 22,
+    "payload": "7b8267545e",
+    "data": {
+      "direction": "right",
+      "calibration": "not calibrated",
+      "battery": 103,
+      "movement": "stationary",
+      "position": 84,
+      "light_level": 5,
+      "device_chain": 14
+    }
+  },
+  {
+    "kind": "q",
+    "adType": 255,
+    "payload": "0000000000000000000000",
+    "data": {
+      "sequence_num": 0,
+      "level": 0,
+      "status": false,
+      "small_status": false,
+      "color_temp": 0,
+      "channel": 1
+    }
+  },
+  {
+    "kind": "q",
+    "adType": 255,
+    "payload": "ffffffffffffffffffffff",
+    "data": {
+      "sequence_num": 255,
+      "level": 127,
+      "status": true,
+      "small_status": true,
+      "color_temp": 65535,
+      "channel": 2
+    }
+  },
+  {
+    "kind": "q",
+    "adType": 255,
+    "payload": "cca03fa5e689940f01bedc",
+    "data": {
+      "sequence_num": 148,
+      "level": 15,
+      "status": true,
+      "small_status": true,
+      "color_temp": 446,
+      "channel": 1
+    }
+  },
+  {
+    "kind": "s",
+    "adType": 22,
+    "payload": "730000000000",
+    "data": {
+      "scope_test": "Not tested",
+      "PIR": "No one moves",
+      "battery": 0,
+      "latest": 0,
+      "LED_state": false,
+      "IOT_state": false,
+      "sensing_distance": "Long",
+      "light_intensity": "Reserve"
+    }
+  },
+  {
+    "kind": "s",
+    "adType": 22,
+    "payload": "f3ffffffffff",
+    "data": {
+      "scope_test": "Tested",
+      "PIR": "Someone is moving",
+      "battery": 127,
+      "latest": 131071,
+      "LED_state": true,
+      "IOT_state": true,
+      "sensing_distance": "Reserve",
+      "light_intensity": "Reserve"
+    }
+  },
+  {
+    "kind": "s",
+    "adType": 22,
+    "payload": "7334fc33de94",
+    "data": {
+      "scope_test": "Not tested",
+      "PIR": "No one moves",
+      "battery": 124,
+      "latest": 78814,
+      "LED_state": false,
+      "IOT_state": true,
+      "sensing_distance": "Middle",
+      "light_intensity": "Reserve"
+    }
+  },
+  {
+    "kind": "v",
+    "adType": 255,
+    "payload": "00000000000000000000000000000000",
+    "data": {
+      "sequence_num": 0,
+      "light_level": 0,
+      "temp": -0.0,
+      "hum": 0
+    }
+  },
+  {
+    "kind": "v",
+    "adType": 255,
+    "payload": "ffffffffffffffffffffffffffffffff",
+    "data": {
+      "sequence_num": 255,
+      "light_level": 15,
+      "temp": 53.61111111111111,
+      "hum": 127
+    }
+  },
+  {
+    "kind": "v",
+    "adType": 255,
+    "payload": "a72bc541d3e6216405c836fc6dd38352",
+    "data": {
+      "sequence_num": 252,
+      "light_level": 13,
+      "temp": 3.3,
+      "hum": 82
+    }
+  }
+]
