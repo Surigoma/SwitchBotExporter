@@ -1,6 +1,6 @@
 # Prometheus 出力
 
-上位仕様の [Prometheus Exporter](../../SPEC.md#6-prometheus-exporter) に対応する。既定では 8000 番の `/metrics` を `promhttp.HandlerFor` で公開する。独立した Registry にデバイス Collector とスキャン監視を登録する。機器別系列の HELP は旧版と同じ `Switch Bot`。
+機器別系列とスキャン監視系列を `/metrics` で公開する。既定では 8000 番の `/metrics` を `promhttp.HandlerFor` で公開する。独立した Registry にデバイス Collector とスキャン監視を登録する。機器別系列の HELP は旧版と同じ `Switch Bot`。
 
 ## 系列とラベル
 
@@ -10,7 +10,7 @@
 | `switchbot_rssi` | `key, mac, name` | 取得済みの RSSI（dBm）。未取得時は系列を生成・更新しない |
 | `switchbot_update` | `key, mac, name` | 取得済みの `UpdatedAt.Unix()`（秒）。サンプルの明示タイムスタンプは付けない |
 
-`key` は次表の接頭辞そのもの。MAC は小文字のコロン区切り、`name` は設定ファイルの値。機種固有の Gauge は `mac, name`、Enum は `mac, name` とメトリクス名と同名の状態ラベルを持つ。接頭辞に以下の接尾辞を連結した文字列をメトリクス名とする。 `G` は Gauge、`E` は Enum 形式の Gauge 群。
+`key` は次表の接頭辞そのもの。MAC は小文字のコロン区切り、`name` は設定ファイルの値。機種固有の Gauge は `mac, name`、Enum は `mac, name` とメトリクス名と同名の状態ラベルを持つ。接頭辞に以下の接尾辞を連結した文字列をメトリクス名とする。`G` は Gauge、`E` は Enum 形式の Gauge 群。
 
 | ID | 接頭辞（共通系列の `key`） | 接尾辞 → 値 |
 | --- | --- | --- |
@@ -61,7 +61,7 @@ switchbot_curtain3_movement{mac="00:11:22:33:44:55",name="example",switchbot_cur
 switchbot_curtain3_movement{mac="00:11:22:33:44:55",name="example",switchbot_curtain3_movement="stationary"} 1
 ```
 
-初期実装は Prometheus テキスト形式を互換対象とする。Python クライアントも同形式では Enum の型を gauge として出力する。Python の OpenMetrics `stateset` 型を前提にしたスクレイプがあるかは切替前に確認する。Go 版は初期値では OpenMetrics を有効化しない。[Prometheus の出力形式](https://prometheus.io/docs/instrumenting/exposition_formats/)、[Python client の変換処理](https://github.com/prometheus/client_python/blob/master/prometheus_client/exposition.py)。
+初期実装は Prometheus テキスト形式を互換対象とする。Python クライアントも同形式では Enum の型を gauge として出力する。Python の OpenMetrics `stateset` 型を前提にしたスクレイプがあるかは切替前に確認する。Go 版は既定では OpenMetrics を有効化しない。[Prometheus の出力形式](https://prometheus.io/docs/instrumenting/exposition_formats/)、[Python client の変換処理](https://github.com/prometheus/client_python/blob/master/prometheus_client/exposition.py)。
 
 ## 公開タイミング
 
@@ -76,7 +76,7 @@ switchbot_curtain3_movement{mac="00:11:22:33:44:55",name="example",switchbot_cur
 | `switchbot_scan_success` | 初期 0。最終完了窓が成功なら 1、失敗なら 0 |
 | `switchbot_scan_errors_total` | 失敗完了した試行につき 1 回加算。正常終了のためのキャンセルと単発の不正広告は除く |
 | `switchbot_scan_duration_seconds` | 接続準備から後始末までの経過秒を成功・失敗ともに 1 回観測する。通常停止による中断は除く。初期バケットは 0.5、1、2.5、5、7.5、10、15、30 秒 |
-| `switchbot_devices_seen` | 最終成功窓で認識した許可済み MAC のユニーク数。既知 S の受理または確定型の有効 M を条件とする。認識のみの型を含む。失敗時は最後の成功値を保持し、正常に 0 台なら 0 に更新する |
+| `switchbot_devices_seen` | 最終成功窓で認識した許可済み MAC のユニーク数。既知の機種を示す有効な Service Data、または機種確定後の有効な Manufacturer Data を受理した MAC を数える。認識のみの型を含む。失敗時は最後の成功値を保持し、正常に 0 台なら 0 に更新する |
 | `switchbot_last_success_timestamp` | 正常終了した直近の窓の完了時刻（Unix 秒）。成功前は 0 |
 
 監視系列にデバイスラベルを付けない。障害対応時は `switchbot_scan_success` と `switchbot_last_success_timestamp` でスキャン全体を、`switchbot_update` で各デバイスのデータ鮮度を確認する。

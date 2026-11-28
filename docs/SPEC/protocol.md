@@ -1,10 +1,10 @@
 # Decoder と Device Store
 
-上位仕様の [対応デバイスと取得情報](../../SPEC.md#4-対応デバイスと取得情報) に対応する。Python 版と比較できる入力・期待値は [合成フィクスチャ](../../testdata/advertisements/README.md) に収録する。
+機種 ID、ペイロードの読み取り規則、MAC ごとの状態保持を定める。Python 版と比較できる入力・期待値は [合成フィクスチャ](../../testdata/advertisements/README.md) に収録する。
 
 ## 種別表と入力長
 
-`p` は識別子を除いたペイロード。以下の添字は 0 始まり、スライス範囲の右端は含まない。Service Data（S）の `p[0] & 0x7f` が ASCII 種別 ID になる。 `—` は値のデコード対象外を示す。すべての S は種別判定だけでも 1 バイト必要。デコード前にフィールド全体の最小長を検証し、超過バイトは読み飛ばす。
+`p` は識別子を除いたペイロード。以下の添字は 0 始まり、スライス範囲の右端は含まない。Service Data（S）の `p[0] & 0x7f` が ASCII 種別 ID になる。`—` は値のデコード対象外を示す。すべての S は種別判定だけでも 1 バイト必要。デコード前にフィールド全体の最小長を検証し、超過バイトは読み飛ばす。
 
 | ID | `typeStr` | S 最小長 | Manufacturer Data（M）最小長 |
 | --- | --- | ---: | ---: |
@@ -45,38 +45,146 @@
 | `$`、`0x04` | SwitchBot Lock Pro | — | 12 |
 | `x`、`X` | SwitchBot Blind Tilt | 3 | 10 |
 
-2 つの ID を並べた機種は、[SwitchBotAPI-BLE](https://github.com/OpenWonderLabs/SwitchBotAPI-BLE) の種別表で同じ製品に割り当てられた ID。どちらの ID でも同じデコーダーを使い、Curtain 3 と同様に共通機種として扱う。同表にあり放送形式が公開されていない次の型は、種別の識別だけを行う。 `n`/`N` Ceiling Light Pro、`#`/`0x03` Evaporative Humidifier、`&`/`0x06` Water Leak Detector、`<`/`0x1c` Relay Switch 1PM、`;`/`0x1b` Relay Switch 1、`=`/`0x1d` Relay Switch 2PM、`'`/`0x07` Universal Remote、`,`/`0x0c` Roller Shade、`%`/`0x05` Hub Mini Matter、`~`/`^` Circulator Fan、`.`/`0x0f` Robot Vacuum K20+ Pro、`z`/`Z` Floor Cleaning Robot S10、`3`/`0x13` Robot Vacuum K10+ Pro Combo、`}`/`]` Mini Robot Vacuum K10+、`(`/`0x08` Mini Robot Vacuum K10+ Pro、`*`/`0x0a`・`+`/`0x0b` Air Purifier (US/JP)、`7`/`0x17`・`8`/`0x18` Air Purifier Table (US/JP)、`-`/`0x0d` Lock Lite、`>`/`0x1e` Garage Door Opener、`?`/`0x1f` Plug Mini (EU)。既存機種の Add Mode として `Q`、`O`、`Y`、`S`、`V` も識別する。Product ID だけで識別する新しい製品は対象外。
+2 つの ID を並べた追加機種では、同じ製品に割り当てられた ID を併記する。どちらの ID でも同じデコーダーを使い、Curtain 3 と同様に共通機種として扱う。放送形式が公開されていない機種では、種別の識別だけを行う。[SwitchBotAPI-BLE](https://github.com/OpenWonderLabs/SwitchBotAPI-BLE)
+
+| ID | 識別のみの機種 |
+| --- | --- |
+| `n`/`N` | Ceiling Light Pro |
+| `#`/`0x03` | Evaporative Humidifier |
+| `&`/`0x06` | Water Leak Detector |
+| `<`/`0x1c` | Relay Switch 1PM |
+| `;`/`0x1b` | Relay Switch 1 |
+| `=`/`0x1d` | Relay Switch 2PM |
+| `'`/`0x07` | Universal Remote |
+| `,`/`0x0c` | Roller Shade |
+| `%`/`0x05` | Hub Mini Matter |
+| `~`/`^` | Circulator Fan |
+| `.`/`0x0f` | Robot Vacuum K20+ Pro |
+| `z`/`Z` | Floor Cleaning Robot S10 |
+| `3`/`0x13` | Robot Vacuum K10+ Pro Combo |
+| `}`/`]` | Mini Robot Vacuum K10+ |
+| `(`/`0x08` | Mini Robot Vacuum K10+ Pro |
+| `*`/`0x0a`・`+`/`0x0b` | Air Purifier (US/JP) |
+| `7`/`0x17`・`8`/`0x18` | Air Purifier Table (US/JP) |
+| `-`/`0x0d` | Lock Lite |
+| `>`/`0x1e` | Garage Door Opener |
+| `?`/`0x1f` | Plug Mini (EU) |
+
+既存機種の Add Mode として `Q`、`O`、`Y`、`S`、`V` も識別する。Product ID だけで識別する新しい製品は対象外。
 
 `m` は Python が長さ 7 以上で `p[8:13]` の存在分を読み、データがなければ 0 を返す。Go 版は 5 バイトがそろった場合だけ値を採用する。実機で長さ 13 未満の正規バリアントが得られた場合は、形式ごとの境界を確認して暫定値を見直す。
 
 ## バイト配置
 
-`b(i,n)` は `p[i]` の bit n（LSB が 0）、`be(a:b)` は `p[a:b]` の big endian 符号なし整数。 `0/1` で並べた文字列は bit が 0、1 のときの順。配列は 0 起点。バッテリーを持つ種別では `battery = p[2] & 0x7f`。温度を持つ種別の共通式は `bit7 == 1` なら正、0 なら負とし、絶対値を `float64(整数バイト & 0x7f) + float64(小数バイト & 0x0f)/10` とする。湿度バイトの bit 7 が 1 のときは `(temp - 32) / 1.8` で Celsius に変換し、`hum = 湿度バイト & 0x7f` とする。
+`b(i,n)` は `p[i]` の bit n（LSB が 0）、`be(a:b)` は `p[a:b]` の big endian 符号なし整数。`/` 区切りの状態文字列は bit が 0、1 の順。配列は 0 起点。バッテリーを持つ種別では `battery = p[2] & 0x7f`。温度を持つ種別の共通式は整数バイトの bit 7 が 1 なら正、0 なら負とし、絶対値を `float64(整数バイト & 0x7f) + float64(小数バイト & 0x0f)/10` とする。湿度バイトの bit 7 が 1 のときは `(temp - 32) / 1.8` で Celsius に変換し、`hum = 湿度バイト & 0x7f` とする。
 
-| デバイスと入力 | フィールドと抽出式 |
-| --- | --- |
-| Bot / Button S | `enc` は `2*b(0,7)+b(1,4)`。順に `no encryption`、`encryption algorithm 1 (the same as the Bot)`、`encryption algorithm 2`、`encryption algorithm 3`。両方に `battery` |
-| Bot S 追加 | `mode` は `b(1,7)` の `one state mode` / `on/off state mode`。 `state` は `b(1,6)` の `on` / `off`。 `commit_flag` は `b(1,4)` の `service data no data update` / `service data has data update`。 `group` は `p[1]` の bit 0–3 に対応する `A,B,C,D` のうち有効なものを順に並べる。 `sync_utc` は `b(2,7)` の `no need to synchronize` / `the Device has passed a time synchronization cycle (10 days by default) and requires a time synchronization` |
-| Meter TH S | `group` は Bot と同じ。 `battery`。 `alert.temp` は `(p[3]>>6)&3` で `no alert`、`low temp alert`、`high temp alert`、`temp alert`。 `alert.hum` は `(p[3]>>4)&3` で `no alert`、`low humidity alert`、`high humidity alert`、`humidity alert`。温度の小数・整数・湿度バイトは `p[3], p[4], p[5]` |
-| Outdoor Meter S / M | S は `battery`。M は `sequence_num=p[6]`、温度の小数・整数・湿度バイトは `p[8], p[9], p[10]` |
-| Contact Sensor S | `enc` は `b(0,7)` の `No encryption` / `With encryption, encryption method 1`。 `scope_tested` と `state.PIR` はともに `b(1,7)`。前者は `Not tested` / `Tested`、後者は `No one moves` / `Someone is moving`。 `state.HAL` は `(p[3]>>1)&3` で `door close`、`door open`、`timeout not close`、`undefined`。 `latest_trigger.PIR=be(4:6)+65536*b(3,7)`、`latest_trigger.HAL=be(6:8)+65536*b(3,6)`、各 `0x1ffff` は `-1`。 `battery`。 `light_level` は `b(3,0)` の `dark` / `light`。 `act_counter.entrances=p[8]>>6`、`act_counter.go_out=(p[8]>>3)&3`、`act_counter.button_push=p[8]&7` |
-| Smart Lock S / M | S は `battery`。M は `sequence_num=p[6]`、`lock_info.calibrated` は `b(7,7)` の真偽値、`lock_info.update_source` は `b(7,3)` の `primary_lock` / `secondary_lock`、`lock_info.status.lock` は `(p[7]>>4)&7` で[状態表](metrics.md#enum-の状態表)。 `lock_info.status.door` は `b(7,2)` の `closed` / `opened`。 `config.double_lock_mode` と `config.unclosed_door_timeout_alarm` は `b(8,7)` と `b(8,6)` の真偽値、`config.pause_automatic_locking` は `b(8,1)` の `inactived` / `activated` |
-| Keypad Touch S | `battery` |
-| Curtain / Curtain 3 S | Curtain の `allow_connection` は `b(1,7)` の真偽値。Curtain 3 の `direction` は同じ bit の `left` / `right`。両方とも `calibration` は `b(1,6)` の `not calibrated` / `calibrated`。 `battery`。 `movement` は `b(3,7)` の `stationary` / `movement`。 `position=p[3]&0x7f`、`light_level=p[4]>>4`、`device_chain=p[4]&0x0f` |
-| Ceiling Light M | `sequence_num=p[6]`、`level=p[7]&0x7f`、`color_temp=be(8:10)`、`status` と `small_status` は `b(10,7)` と `b(10,6)` の真偽値、`channel=1+b(10,0)` |
-| Motion Sensor S | `scope_test` は `b(1,7)` の `Not tested` / `Tested`、`PIR` は **`b(1,6)`** の `No one moves` / `Someone is moving`。 `battery`。 `latest=be(3:5)+65536*b(5,7)`。 `LED_state` と `IOT_state` は `b(5,5)` と `b(5,4)` の真偽値。 `sensing_distance` は `(p[5]>>2)&3` の `Long`、`Middle`、`Short`、`Reserve`。 `light_intensity` は `p[5]&3` の `Reserve`、`dark`、`bright`、`Reserve` |
-| Hub Mini M | `latest_time=be(8:13)` を `uint64` に保持 |
-| Hub 2 M | `sequence_num=p[11]`、`light_level=p[12]&0x0f`、温度の小数・整数・湿度バイトは `p[13], p[14], p[15]` |
-| Meter Plus S | Meter TH S と同じ |
-| Meter Pro / Meter Pro CO2 S / M | S は `battery`。M の温度の小数・整数・湿度バイトは `p[8], p[9], p[10]`。CO2 は `co2=be(13:15)`（ppm） |
-| Humidifier S | `on` は `p[1] != 0`。 `mode` は `p[4]` が `0x80` または `0xe4` なら `auto`、101–103 なら `low`、`medium`、`high`、1–100 なら `target`、それ以外は `Undefined`。 `target_humidity` は `target` のとき `p[4]`、それ以外は 0。電池は持たない |
-| Color Bulb M | `sequence_num=p[6]`、`on=b(7,7)`、`level=p[7]&0x7f`、`delay=b(8,7)`、`network` は `(p[8]>>4)&7` の `wifi connecting`、`iot connecting`、`iot connected`（以外は `Undefined`）、`preset=b(8,3)`、`light_state` は `p[8]&7` の 1–3 で `white`、`color`、`dynamic`（以外は `Undefined`）、`bad_rssi=b(9,7)`、`dynamic_rate=p[9]&0x7f`、`loop_index=p[10]>>2` |
-| LED Strip Light M | `sequence_num`、`on`、`level`、`delay`、`network` は Color Bulb と同じ。 `mode` は `p[8]&0x0f` の 2–5 で `color`、`scene`、`music`、`controller`（以外は `Undefined`）。色スロットと故障コードは読まない |
-| Plug Mini (US / JP) M | `sequence_num=p[6]`、`on` は `p[7] == 0x80`、`delay=b(8,0)`、`timer=b(8,1)`、`synced_utc=b(8,2)`、`wifi_rssi=-p[9]`、`overload=b(10,7)`、`power=(be(10:12)&0x7fff)/10`。仕様書に単位がないため、RSSI の符号と電力の W 換算は pySwitchbot に合わせた暫定値 |
-| Lock Pro M | `sequence_num=p[6]`、`calibrated=b(7,7)`、`lock` は `(p[7]>>3)&0x0f` で[状態表](metrics.md#enum-の状態表)、`door_open=b(8,4)`、`auto_lock_paused=b(8,3)`、`battery=p[9]&0x7f`、`charging=b(9,7)`、`double_lock_mode=b(10,7)`、`unclosed_door_alarm=b(11,7)`、`unlocked_alarm=b(11,6)` |
-| Blind Tilt S / M | S は `battery`。M は `sequence_num=p[6]`、`calibrated=b(7,0)`、`movement` は `b(8,7)` の `stationary` / `movement`、`tilt=p[8]&0x7f`（0 下向き閉、50 開、100 上向き閉）、`light_level=p[9]>>4` |
+### Bot / Button S
 
-上の追加機種は仕様書の表からの実装で、実機の広告では未確認。M の添字はいずれも Company ID の後から数える。
+- `enc` は `2*b(0,7)+b(1,4)`。順に `no encryption`、`encryption algorithm 1 (the same as the Bot)`、`encryption algorithm 2`、`encryption algorithm 3`。両方に `battery`。
+
+### Bot S 追加
+
+- `mode` は `b(1,7)` の `one state mode` / `on/off state mode`。
+- `state` は `b(1,6)` の `on` / `off`。
+- `commit_flag` は `b(1,4)` の `service data no data update` / `service data has data update`。
+- `group` は `p[1]` の bit 0–3 に対応する `A,B,C,D` のうち有効なものを順に並べる。
+- `sync_utc` は `b(2,7)` の `no need to synchronize` / `the Device has passed a time synchronization cycle (10 days by default) and requires a time synchronization`。
+
+### Meter TH S
+
+- `group` は Bot と同じ。
+- `battery` は共通式で取得する。
+- `alert.temp` は `(p[3]>>6)&3` で `no alert`、`low temp alert`、`high temp alert`、`temp alert`。
+- `alert.hum` は `(p[3]>>4)&3` で `no alert`、`low humidity alert`、`high humidity alert`、`humidity alert`。温度の小数・整数・湿度バイトは `p[3], p[4], p[5]`。
+
+### Outdoor Meter S / M
+
+- S は `battery`。M は `sequence_num=p[6]`、温度の小数・整数・湿度バイトは `p[8], p[9], p[10]`。
+
+### Contact Sensor S
+
+- `enc` は `b(0,7)` の `No encryption` / `With encryption, encryption method 1`。
+- `scope_tested` と `state.PIR` はともに `b(1,7)`。前者は `Not tested` / `Tested`、後者は `No one moves` / `Someone is moving`。
+- `state.HAL` は `(p[3]>>1)&3` で `door close`、`door open`、`timeout not close`、`undefined`。
+- `latest_trigger.PIR=be(4:6)+65536*b(3,7)`、`latest_trigger.HAL=be(6:8)+65536*b(3,6)`、各 `0x1ffff` は `-1`。
+- `battery` は共通式で取得する。
+- `light_level` は `b(3,0)` の `dark` / `light`。
+- `act_counter.entrances=p[8]>>6`、`act_counter.go_out=(p[8]>>3)&3`、`act_counter.button_push=p[8]&7`。
+
+### Smart Lock S / M
+
+- S は `battery`。M は `sequence_num=p[6]`、`lock_info.calibrated` は `b(7,7)` の真偽値、`lock_info.update_source` は `b(7,3)` の `primary_lock` / `secondary_lock`、`lock_info.status.lock` は `(p[7]>>4)&7` で[状態表](metrics.md#enum-の状態表)。
+- `lock_info.status.door` は `b(7,2)` の `closed` / `opened`。
+- `config.double_lock_mode` と `config.unclosed_door_timeout_alarm` は `b(8,7)` と `b(8,6)` の真偽値、`config.pause_automatic_locking` は `b(8,1)` の `inactived` / `activated`。
+
+### Keypad Touch S
+
+- `battery` は共通式で取得する。
+
+### Curtain / Curtain 3 S
+
+- Curtain の `allow_connection` は `b(1,7)` の真偽値。Curtain 3 の `direction` は同じ bit の `left` / `right`。両方とも `calibration` は `b(1,6)` の `not calibrated` / `calibrated`。
+- `battery` は共通式で取得する。
+- `movement` は `b(3,7)` の `stationary` / `movement`。
+- `position=p[3]&0x7f`、`light_level=p[4]>>4`、`device_chain=p[4]&0x0f`。
+
+### Ceiling Light M
+
+- `sequence_num=p[6]`、`level=p[7]&0x7f`、`color_temp=be(8:10)`、`status` と `small_status` は `b(10,7)` と `b(10,6)` の真偽値、`channel=1+b(10,0)`。
+
+### Motion Sensor S
+
+- `scope_test` は `b(1,7)` の `Not tested` / `Tested`、`PIR` は **`b(1,6)`** の `No one moves` / `Someone is moving`。
+- `battery` は共通式で取得する。
+- `latest=be(3:5)+65536*b(5,7)`。
+- `LED_state` と `IOT_state` は `b(5,5)` と `b(5,4)` の真偽値。
+- `sensing_distance` は `(p[5]>>2)&3` の `Long`、`Middle`、`Short`、`Reserve`。
+- `light_intensity` は `p[5]&3` の `Reserve`、`dark`、`bright`、`Reserve`。
+
+### Hub Mini M
+
+- `latest_time=be(8:13)` を `uint64` に保持。
+
+### Hub 2 M
+
+- `sequence_num=p[11]`、`light_level=p[12]&0x0f`、温度の小数・整数・湿度バイトは `p[13], p[14], p[15]`。
+
+### Meter Plus S
+
+- Meter TH S と同じ。
+
+### Meter Pro / Meter Pro CO2 S / M
+
+- S は `battery`。M の温度の小数・整数・湿度バイトは `p[8], p[9], p[10]`。CO2 は `co2=be(13:15)`（ppm）。
+
+### Humidifier S
+
+- `on` は `p[1] != 0`。
+- `mode` は `p[4]` が `0x80` または `0xe4` なら `auto`、101–103 なら `low`、`medium`、`high`、1–100 なら `target`、それ以外は `Undefined`。
+- `target_humidity` は `target` のとき `p[4]`、それ以外は 0。電池は持たない。
+
+### Color Bulb M
+
+- `sequence_num=p[6]`、`on=b(7,7)`、`level=p[7]&0x7f`、`delay=b(8,7)`、`network` は `(p[8]>>4)&7` の `wifi connecting`、`iot connecting`、`iot connected`（以外は `Undefined`）、`preset=b(8,3)`、`light_state` は `p[8]&7` の 1–3 で `white`、`color`、`dynamic`（以外は `Undefined`）、`bad_rssi=b(9,7)`、`dynamic_rate=p[9]&0x7f`、`loop_index=p[10]>>2`。
+
+### LED Strip Light M
+
+- `sequence_num`、`on`、`level`、`delay`、`network` は Color Bulb と同じ。
+- `mode` は `p[8]&0x0f` の 2–5 で `color`、`scene`、`music`、`controller`（以外は `Undefined`）。色スロットと故障コードは読まない。
+
+### Plug Mini (US / JP) M
+
+- `sequence_num=p[6]`、`on` は `p[7] == 0x80`、`delay=b(8,0)`、`timer=b(8,1)`、`synced_utc=b(8,2)`、`wifi_rssi=-p[9]`、`overload=b(10,7)`、`power=(be(10:12)&0x7fff)/10`。仕様書に単位がないため、RSSI の符号と電力の W 換算は pySwitchbot に合わせた暫定値。
+
+### Lock Pro M
+
+- `sequence_num=p[6]`、`calibrated=b(7,7)`、`lock` は `(p[7]>>3)&0x0f` で[状態表](metrics.md#enum-の状態表)、`door_open=b(8,4)`、`auto_lock_paused=b(8,3)`、`battery=p[9]&0x7f`、`charging=b(9,7)`、`double_lock_mode=b(10,7)`、`unclosed_door_alarm=b(11,7)`、`unlocked_alarm=b(11,6)`。
+
+### Blind Tilt S / M
+
+- S は `battery`。M は `sequence_num=p[6]`、`calibrated=b(7,0)`、`movement` は `b(8,7)` の `stationary` / `movement`、`tilt=p[8]&0x7f`（0 下向き閉、50 開、100 上向き閉）、`light_level=p[9]>>4`。
+
+Meter Plus 以降の追加機種は公開仕様に基づいて実装した。実機の広告では未確認。M の添字はいずれも Company ID の直後を 0 として数える。
 
 値は機種ごとの型付き struct とし、M と S が別々に値を持つ場合は取得済みの部分を区別できる構造にする。未取得は nil または明示的な有無で表し、0 や false は有効な値とする。JSON には取得済みの値を出す。値を持つ `group` の空リストは `[]`。Decoder は結果を返してから Store に反映するので、途中で入力不備が見つかっても部分的な書き込みは残らない。シーケンス番号は値として保存し、重複排除や時刻判定には用いない。
 
@@ -85,7 +193,7 @@
 - Exporter は正規化 MAC を `nametable.json` で照合してから処理する。単発 `scan` は既定で登録不要。対象の AD Type / ID がある通知で MAC の状態を作る。型未確定の JSON は `type=0`、`typeStr="Undefined"`、`data={}` とする。未取得 RSSI と更新時刻は、CLI でそれぞれ `-999`、`-1` として出力する。
 - S が既知の型を示し、適用される長さ検証を通過したら型を確定する。既知だがデコーダーがない型も識別する。初回の未知 ID は数値と `Undefined` を CLI に残せる。確定済みの型を未知 ID や長さ不足では変更しない。既知の別機種に変わった場合は古いデコード済みの機種データをクリアする。Curtain 3 の `[` と `{` は共通機種として扱う。
 - M 先行時は MAC ごとに受信順で保留する。有効な S で型が確定したら未期限切れの M を受信順に適用し、処理済みのエントリーを消す。同じ通知内では S と保留 M を処理してから、その通知に含まれる新しい M を適用する。未対応型の確定時はキャッシュを解放する。M の長さは型が判明した時点で検証する。
-- M キャッシュの TTL 初期値は 30 秒。 `now >= receivedAt + TTL` で期限切れとし、広告処理時および 1 秒ごとのアプリタイマーで破棄する。初期上限は 1 MAC あたり 8 件、全体で 256 件、1 ペイロード 255 バイト。追加時に上限を超えれば古い順に破棄し、件数上限による破棄は抑制付きで記録する。タイマーと受信イベント間の状態更新は Store 内で直列化する。Decoder 済みデータに TTL は適用しない。
+- M キャッシュの TTL 初期値は 30 秒。`now >= receivedAt + TTL` で期限切れとし、広告処理時および 1 秒ごとのアプリタイマーで破棄する。初期上限は 1 MAC あたり 8 件、全体で 256 件、1 ペイロード 255 バイト。追加時に上限を超えれば古い順に破棄し、件数上限による破棄は抑制付きで記録する。タイマーと受信イベント間の状態更新は Store 内で直列化する。デコード済みのデータに TTL は適用しない。
 - 対応デコーダーの対象項目を受理した時点で `UpdatedAt` を元の受信時刻で進める。キャッシュ再生時は遡らせない。Hub 2 などの種別判定だけの S、RSSI 単独、解釈対象外の M では測定の更新時刻を進めない。Python はデコーダーの no-op 分岐でも時刻を更新していたため、この点は意図的に変更する。
 - RSSI は対象 MAC に対するスキャン中の最新の実測値を保持する。対象 AD が到着する前の RSSI が同じ窓で取得できた場合、Backend から引き継げる。Python は主に S 処理時に RSSI を更新していたため、Go 版では M や RSSI 単独通知でも値が進む場合がある。取得済み値は欠落通知で消さない。
-- スキャン中の Store は永続する作業状態。窓が正常に終了したら値のコピーを公開する。失敗した窓では公開状態を維持する。失敗までに正常に受理した値は記録した元時刻のまま次の成功時に公開できる。スキャン未検出や接続断で記録済みの値を削除しない。
+- Store の作業状態はプロセス内でスキャンをまたいで保持する。窓が正常に終了したら値のコピーを公開する。失敗した窓では公開状態を維持する。失敗までに正常に受理した値は記録した元時刻のまま次の成功時に公開できる。スキャン未検出や接続断で記録済みの値を削除しない。
