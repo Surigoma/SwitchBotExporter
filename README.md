@@ -34,6 +34,10 @@ Exporter は登録済み機器を対象にします。単発スキャンは既�
 
 [Dependabot](.github/dependabot.yml) は、設定が既定ブランチに入ると Go モジュールと GitHub Actions の更新を毎週確認し、Pull Request を作成します。
 
+[Release Please](.github/workflows/release.yml) は `main` の Conventional Commits から変更履歴とバージョンをまとめたリリース PR を作成します。初回の予定バージョンは `v0.1.0` です。リリース PR をマージするとタグとドラフト Release が作成され、ARMv6 の `.tar.gz` と `SHA256SUMS` が添付されます。添付を確認してからドラフトを公開します。
+
+Release Please は標準の `GITHUB_TOKEN` を使います。リリース PR に **Approve workflows to run** が表示されたら CI の実行を承認します。既存のドラフトに添付し直すときは、Actions の **Release** を `main` から手動実行し、既存のタグを `release_tag` に指定します。空欄ではアーカイブをビルドし、Actions の成果物に保存します。
+
 ## 機種の追加・変更
 
 機種固有のコードは [`internal/models/`](internal/models/) の機種別ディレクトリに置きます。たとえば [Meter TH](internal/models/meterth/) の `decode.go` はペイロードを読み、`metrics.go` はその値を公開系列に変換します。[種別表](internal/models/registry.go) で Service Data の種別 ID、必要バイト数、機種の実装を登録します。Curtain 3 の共通デコーダーは [`internal/models/curtain3/`](internal/models/curtain3/) にあります。
