@@ -766,8 +766,12 @@ switchbot-exporter/
 │   │   └── bluez.go
 │   ├── protocol/
 │   │   ├── advertisement.go
-│   │   ├── decoder.go
-│   │   └── devices.go
+│   │   └── decoder.go
+│   ├── models/
+│   │   ├── registry.go
+│   │   └── <model>/
+│   │       ├── decode.go
+│   │       └── metrics.go
 │   ├── device/
 │   │   └── store.go
 │   ├── metrics/
@@ -779,7 +783,7 @@ switchbot-exporter/
 ├── testdata/
 │   └── advertisements/
 ├── go.mod
-├── Makefile
+├── Taskfile.yml
 ├── README.md
 ├── LICENSE
 └── .gitignore
@@ -788,7 +792,8 @@ switchbot-exporter/
 責務を明確に分離する。
 
 - ble: Bluetooth通信とAdvertisement取得
-- protocol: SwitchBot固有プロトコルの解析
+- protocol: 正規化したAdvertisementと共通のデコード処理
+- models: 機種別のデコード、種別登録、メトリクス変換
 - device: デバイス状態の管理
 - metrics: Prometheusメトリクス
 - config: 設定読み込み・検証
@@ -860,13 +865,13 @@ ARMv6向けにクロスコンパイルできること。
 
 # 12. ビルド・配布
 
-Makefileで以下を提供する。
+Taskfileで以下を提供する。
 
 ```bash
-make build
-make test
-make lint
-make build-armv6
+task build
+task test
+task lint
+task build-armv6
 ```
 
 ARMv6ビルド成果物：
