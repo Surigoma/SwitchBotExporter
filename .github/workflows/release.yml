@@ -75,7 +75,7 @@ jobs:
           go install github.com/go-task/task/v3/cmd/task@v3.45.4
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
-      - name: Package the ARMv6 release
+      - name: Package Linux releases
         id: package
         env:
           RELEASE_COMMIT: ${{ needs.release-please.outputs.commit }}
@@ -86,18 +86,18 @@ jobs:
             echo "::error::The tag differs from the commit reported by Release Please"
             exit 1
           fi
-          task build-armv6 "VERSION=${RELEASE_TAG:-dev}" "COMMIT=$commit"
-          bash scripts/verify-armv6.sh dist/switchbot-exporter-linux-armv6
-          archive=dist/switchbot-exporter-linux-armv6.tar.gz
-          tar -czf "$archive" -C dist switchbot-exporter-linux-armv6 -C "$GITHUB_WORKSPACE" LICENSE
-          (cd dist && sha256sum switchbot-exporter-linux-armv6.tar.gz > SHA256SUMS)
+          bash scripts/build-linux.sh "${RELEASE_TAG:-dev}"
+          for binary in dist/switchbot-exporter-linux-*; do
+            tar -czf "$binary.tar.gz" -C dist "${binary##*/}" -C "$GITHUB_WORKSPACE" LICENSE
+          done
+          (cd dist && sha256sum switchbot-exporter-linux-*.tar.gz > SHA256SUMS)
           echo "commit=$commit" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: switchbot-exporter-release
           path: |
-            dist/switchbot-exporter-linux-armv6.tar.gz
+            dist/switchbot-exporter-linux-*.tar.gz
             dist/SHA256SUMS
           if-no-files-found: error
 
@@ -133,4 +133,4 @@ jobs:
           gh run download "$GITHUB_RUN_ID" --name switchbot-exporter-release --dir dist
           (cd dist && sha256sum -c SHA256SUMS)
           gh release upload "$RELEASE_TAG" --clobber \
-            dist/switchbot-exporter-linux-armv6.tar.gz dist/SHA256SUMS
+            dist/switchbot-exporter-linux-*.tar.gz dist/SHA256SUMS

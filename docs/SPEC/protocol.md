@@ -1,6 +1,6 @@
 # Decoder と Device Store
 
-上位仕様の [§3.2–4、§5.3–5.4](../../SPEC.md) と [Python デコーダー](../../.orig/switchbot.py) に対応する。
+上位仕様の [対応デバイスと取得情報](../../SPEC.md#4-対応デバイスと取得情報) に対応する。Python 版と比較できる入力・期待値は [合成フィクスチャ](../../testdata/advertisements/README.md) に収録する。
 
 ## 種別表と入力長
 

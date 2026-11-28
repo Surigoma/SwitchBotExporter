@@ -1,6 +1,6 @@
 # Prometheus 出力
 
-上位仕様の [§6](../../SPEC.md) と [Python Exporter](../../.orig/switchbot_exporter.py) に対応する。既定の `:8000/metrics` を `promhttp.HandlerFor` で公開し、独立した Registry にデバイス Collector とスキャン監視を登録する。デバイス系列の HELP は既存と同じ `Switch Bot`。
+上位仕様の [Prometheus Exporter](../../SPEC.md#6-prometheus-exporter) に対応する。既定では 8000 番の `/metrics` を `promhttp.HandlerFor` で公開する。独立した Registry にデバイス Collector とスキャン監視を登録する。機器別系列の HELP は旧版と同じ `Switch Bot`。
 
 ## 系列とラベル
 
@@ -53,7 +53,7 @@ switchbot_curtain3_movement{mac="00:11:22:33:44:55",name="example",switchbot_cur
 
 - 窓の正常終了時に Device Store から取得済みの値を変換し、既存の公開系列に上書きする。更新キーはメトリクス名と全ラベルの組。既に公開した系列はデバイスが検出されなくなっても保持する。型変更で系列名や `key` が変わった場合もプロセス内では以前の系列を保持する。再起動時は測定を受理するまで対象系列が現れない。
 - Collector は記述子を固定し、更新後の不変なスナップショットを一括で差し替える。各 scrape は 1 つのスナップショットを参照して `MustNewConstMetric` 相当で値を出力する。Enum の 0/1 が切り替わる途中の値が同一 scrape に混ざることを防ぐ。
-- 元の Python クライアントが暗黙に公開していたプロセス／ランタイム系列は出力契約の確認対象に含める。初期設計の Registry は SwitchBot 系列のみ。既存のダッシュボードやアラートが `process_*` や `python_*` に依存していれば移行判定時に対応を決める。
+- Go 版の Registry は SwitchBot 系列を公開する。移行時は Python クライアント由来の `process_*` や `python_*` を参照するダッシュボードやアラートの有無も確認する。
 
 ## スキャン監視
 
