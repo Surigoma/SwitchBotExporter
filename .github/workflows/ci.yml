@@ -51,15 +51,13 @@ jobs:
           go build -o dist/switchbot-ble-poc ./cmd/switchbot-ble-poc
           dbus-run-session -- /usr/bin/python3 internal/ble/testdata/bluez_mock.py dist/switchbot-ble-poc
 
-      - name: Build and verify the ARMv6 binary
-        run: |
-          task build-armv6
-          bash scripts/verify-armv6.sh dist/switchbot-exporter-linux-armv6
+      - name: Build and verify Linux binaries
+        run: bash scripts/build-linux.sh
 
-      - name: Upload ARMv6 binary
+      - name: Upload Linux binaries
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: switchbot-exporter-linux-armv6
-          path: dist/switchbot-exporter-linux-armv6
+          name: switchbot-exporter-linux
+          path: dist/switchbot-exporter-linux-*
           if-no-files-found: error
           retention-days: 14
