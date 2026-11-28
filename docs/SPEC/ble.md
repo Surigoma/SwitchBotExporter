@@ -28,7 +28,7 @@ type ADField struct {
 ## BlueZ D-Bus
 
 1. 専用の system bus 接続を作る。接続の終了と `NameOwnerChanged` による `org.bluez` の所有者変更を監視する。BlueZ の通知は現在の所有者と対象オブジェクトを照合する。
-2. `ObjectManager.InterfacesAdded`、`InterfacesRemoved`、`Properties.PropertiesChanged` を購読する。 `GetManagedObjects` で指定名の `Adapter1` と `Powered=true` を確認し、対象 Adapter 配下の `Device1` から `Address` と `Adapter` の対応表を初期化する。初期取得の Service Data、Manufacturer Data、RSSI は受信データとして使わない。
+2. `ObjectManager.InterfacesAdded`、`InterfacesRemoved`、`Properties.PropertiesChanged` を購読する。名前表があるとき、`PropertiesChanged` の購読はアダプターのパスと、名前表の各 MAC に対応するデバイスパス（例 `/org/bluez/hci0/dev_C8_F6_75_D8_C4_83`）に限る。名前表がない場合と、64 件を超える場合は、アダプター配下全体を購読する。周囲の他機器の通知は D-Bus が配送しないので、受信とデコードの費用がかからない。 `GetManagedObjects` で指定名の `Adapter1` と `Powered=true` を確認し、対象 Adapter 配下の `Device1` から `Address` と `Adapter` の対応表を初期化する。初期取得の Service Data、Manufacturer Data、RSSI は受信データとして使わない。
 3. 対象 Adapter の `SetDiscoveryFilter` に `Transport="le"`、`DuplicateData=true` を設定し、`StartDiscovery` を呼ぶ。購読は開始要求前に済ませる。開始要求の送信時から応答までの通知は一時保存し、成功応答後に受信順で処理する。開始失敗時は破棄する。BlueZ の discovery セッションは共有されるので、受け取った通知はアプリ側でも Adapter と対象 MAC で絞る。
 4. スキャン中の `InterfacesAdded` に含まれる `Device1` の値と、`PropertiesChanged` で実際に通知された項目を正規化する。更新通知に含まれない AD フィールドは補完しない。未登録のパスは `Address` と `Adapter` の取得で補完し、その応答を新規ペイロードには使わない。削除または無効化されたプロパティは対応表・RSSI キャッシュから消す。
 5. 受信期間の終了後は通知の取り込みを止め、自分のセッションを `StopDiscovery` で解放して専用接続を閉じる。開始や停止の応答が不明でも接続を閉じることで自分のセッションを解放し、次の試行では購読とオブジェクト探索からやり直す。D-Bus 接続の準備、呼び出しと後始末にはそれぞれ期限を設ける（初期上限は各 3 秒）。後始末はキャンセル済みのスキャンとは別の期限付き context で実行する。窓の終端を受信時刻で判定し、その時刻以降の通知を次の窓に持ち越さない。

@@ -5,6 +5,7 @@ Linux 上の Bluetooth アダプターで受け取った BLE Advertisement を�
 | 文書 | 設計範囲 |
 | --- | --- |
 | [BLE 受信とスキャン制御](ble.md) | BlueZ PoC、D-Bus、正規化、スキャン周期、復旧 |
+| [常駐受信のストリーム化](stream.md) | 不採用。連続セッションの実機結果、負荷の内訳、採用した購読の絞り込み |
 | [Decoder と Device Store](protocol.md) | バイト配置、デバイス種別、結合、保持 |
 | [Prometheus 出力](metrics.md) | 系列名、ラベル、Enum、監視メトリクス |
 | [CLI と Linux での運用](operations.md) | 設定、systemd、移行、切り戻し |

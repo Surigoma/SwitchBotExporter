@@ -68,7 +68,11 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 
 	encoder := json.NewEncoder(stdout)
 	observations := 0
-	err := ble.ScanBlueZ(ctx, *adapter, *mac, *duration, func(obs ble.Observation) error {
+	var targets []string
+	if *mac != "" {
+		targets = []string{*mac}
+	}
+	err := ble.ScanBlueZ(ctx, *adapter, targets, *duration, func(obs ble.Observation) error {
 		line := outputObservation{
 			ReceivedAt:       obs.ReceivedAt.UTC(),
 			Source:           obs.Source,

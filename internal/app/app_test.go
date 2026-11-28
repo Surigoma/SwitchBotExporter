@@ -29,7 +29,7 @@ func testAdvertisement() ble.Observation {
 
 func TestScanOnce(t *testing.T) {
 	a := App{
-		Scan: func(_ context.Context, _ string, _ string, _ time.Duration, emit func(ble.Observation) error) error {
+		Scan: func(_ context.Context, _ string, _ []string, _ time.Duration, emit func(ble.Observation) error) error {
 			return emit(testAdvertisement())
 		},
 		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
@@ -60,7 +60,10 @@ func TestHTTPRecoveryAndGracefulShutdown(t *testing.T) {
 	stopped := make(chan struct{})
 	attempt := 0
 	a := App{
-		Scan: func(_ context.Context, _ string, _ string, _ time.Duration, emit func(ble.Observation) error) error {
+		Scan: func(_ context.Context, _ string, targets []string, _ time.Duration, emit func(ble.Observation) error) error {
+			if len(targets) != 1 || targets[0] != testMAC {
+				t.Errorf("scan targets %v, expected the name table", targets)
+			}
 			attempt++
 			if attempt == 1 {
 				return errors.New("adapter temporarily unavailable")

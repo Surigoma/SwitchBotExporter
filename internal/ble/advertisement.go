@@ -25,6 +25,8 @@ type Observation struct {
 
 type tracker struct {
 	adapter dbus.ObjectPath
+	// targets limits observations to these MAC addresses. Nil allows all.
+	targets map[string]struct{}
 	devices map[dbus.ObjectPath]device
 }
 
@@ -53,7 +55,7 @@ func (t *tracker) remember(path dbus.ObjectPath, fields properties) {
 	}
 }
 
-func (t *tracker) observe(path dbus.ObjectPath, fields properties, invalidated []string, at time.Time, source, targetMAC string) (Observation, bool) {
+func (t *tracker) observe(path dbus.ObjectPath, fields properties, invalidated []string, at time.Time, source string) (Observation, bool) {
 	info := t.devices[path]
 	for _, key := range invalidated {
 		switch key {
@@ -80,7 +82,7 @@ func (t *tracker) observe(path dbus.ObjectPath, fields properties, invalidated [
 		delete(t.devices, path)
 		return Observation{}, false
 	}
-	if targetMAC != "" && info.mac != targetMAC {
+	if _, wanted := t.targets[info.mac]; t.targets != nil && !wanted {
 		t.devices[path] = info
 		return Observation{}, false
 	}
