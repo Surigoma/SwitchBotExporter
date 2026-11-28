@@ -34,6 +34,18 @@
 | `q` | SwitchBot Ceiling light | — | 11 |
 | `s` | SwitchBot Motion Sensor | 6 | — |
 | `v` | SwitchBot Hub 2 | — | 16 |
+| `i`、`I` | SwitchBot Meter Plus | 6 | — |
+| `4`、`0x14` | SwitchBot Meter Pro | 3 | 11 |
+| `5`、`0x15` | SwitchBot Meter Pro CO2 | 3 | 15 |
+| `e`、`E` | SwitchBot Humidifier | 5 | — |
+| `u`、`U` | SwitchBot Color Bulb | — | 11 |
+| `r`、`R` | SwitchBot LED Strip Light | — | 9 |
+| `g`、`G` | SwitchBot Plug Mini (US) | — | 12 |
+| `j`、`J` | SwitchBot Plug Mini (JP) | — | 12 |
+| `$`、`0x04` | SwitchBot Lock Pro | — | 12 |
+| `x`、`X` | SwitchBot Blind Tilt | 3 | 10 |
+
+2 つの ID を並べた機種は、[SwitchBotAPI-BLE](https://github.com/OpenWonderLabs/SwitchBotAPI-BLE) の種別表で同じ製品に割り当てられた ID。どちらの ID でも同じデコーダーを使い、Curtain 3 と同様に共通機種として扱う。同表にあり放送形式が公開されていない次の型は、種別の識別だけを行う。 `n`/`N` Ceiling Light Pro、`#`/`0x03` Evaporative Humidifier、`&`/`0x06` Water Leak Detector、`<`/`0x1c` Relay Switch 1PM、`;`/`0x1b` Relay Switch 1、`=`/`0x1d` Relay Switch 2PM、`'`/`0x07` Universal Remote、`,`/`0x0c` Roller Shade、`%`/`0x05` Hub Mini Matter、`~`/`^` Circulator Fan、`.`/`0x0f` Robot Vacuum K20+ Pro、`z`/`Z` Floor Cleaning Robot S10、`3`/`0x13` Robot Vacuum K10+ Pro Combo、`}`/`]` Mini Robot Vacuum K10+、`(`/`0x08` Mini Robot Vacuum K10+ Pro、`*`/`0x0a`・`+`/`0x0b` Air Purifier (US/JP)、`7`/`0x17`・`8`/`0x18` Air Purifier Table (US/JP)、`-`/`0x0d` Lock Lite、`>`/`0x1e` Garage Door Opener、`?`/`0x1f` Plug Mini (EU)。既存機種の Add Mode として `Q`、`O`、`Y`、`S`、`V` も識別する。Product ID だけで識別する新しい製品は対象外。
 
 `m` は Python が長さ 7 以上で `p[8:13]` の存在分を読み、データがなければ 0 を返す。Go 版は 5 バイトがそろった場合だけ値を採用する。実機で長さ 13 未満の正規バリアントが得られた場合は、形式ごとの境界を確認して暫定値を見直す。
 
@@ -55,6 +67,16 @@
 | Motion Sensor S | `scope_test` は `b(1,7)` の `Not tested` / `Tested`、`PIR` は **`b(1,6)`** の `No one moves` / `Someone is moving`。 `battery`。 `latest=be(3:5)+65536*b(5,7)`。 `LED_state` と `IOT_state` は `b(5,5)` と `b(5,4)` の真偽値。 `sensing_distance` は `(p[5]>>2)&3` の `Long`、`Middle`、`Short`、`Reserve`。 `light_intensity` は `p[5]&3` の `Reserve`、`dark`、`bright`、`Reserve` |
 | Hub Mini M | `latest_time=be(8:13)` を `uint64` に保持 |
 | Hub 2 M | `sequence_num=p[11]`、`light_level=p[12]&0x0f`、温度の小数・整数・湿度バイトは `p[13], p[14], p[15]` |
+| Meter Plus S | Meter TH S と同じ |
+| Meter Pro / Meter Pro CO2 S / M | S は `battery`。M の温度の小数・整数・湿度バイトは `p[8], p[9], p[10]`。CO2 は `co2=be(13:15)`（ppm） |
+| Humidifier S | `on` は `p[1] != 0`。 `mode` は `p[4]` が `0x80` または `0xe4` なら `auto`、101–103 なら `low`、`medium`、`high`、1–100 なら `target`、それ以外は `Undefined`。 `target_humidity` は `target` のとき `p[4]`、それ以外は 0。電池は持たない |
+| Color Bulb M | `sequence_num=p[6]`、`on=b(7,7)`、`level=p[7]&0x7f`、`delay=b(8,7)`、`network` は `(p[8]>>4)&7` の `wifi connecting`、`iot connecting`、`iot connected`（以外は `Undefined`）、`preset=b(8,3)`、`light_state` は `p[8]&7` の 1–3 で `white`、`color`、`dynamic`（以外は `Undefined`）、`bad_rssi=b(9,7)`、`dynamic_rate=p[9]&0x7f`、`loop_index=p[10]>>2` |
+| LED Strip Light M | `sequence_num`、`on`、`level`、`delay`、`network` は Color Bulb と同じ。 `mode` は `p[8]&0x0f` の 2–5 で `color`、`scene`、`music`、`controller`（以外は `Undefined`）。色スロットと故障コードは読まない |
+| Plug Mini (US / JP) M | `sequence_num=p[6]`、`on` は `p[7] == 0x80`、`delay=b(8,0)`、`timer=b(8,1)`、`synced_utc=b(8,2)`、`wifi_rssi=-p[9]`、`overload=b(10,7)`、`power=(be(10:12)&0x7fff)/10`。仕様書に単位がないため、RSSI の符号と電力の W 換算は pySwitchbot に合わせた暫定値 |
+| Lock Pro M | `sequence_num=p[6]`、`calibrated=b(7,7)`、`lock` は `(p[7]>>3)&0x0f` で[状態表](metrics.md#enum-の状態表)、`door_open=b(8,4)`、`auto_lock_paused=b(8,3)`、`battery=p[9]&0x7f`、`charging=b(9,7)`、`double_lock_mode=b(10,7)`、`unclosed_door_alarm=b(11,7)`、`unlocked_alarm=b(11,6)` |
+| Blind Tilt S / M | S は `battery`。M は `sequence_num=p[6]`、`calibrated=b(7,0)`、`movement` は `b(8,7)` の `stationary` / `movement`、`tilt=p[8]&0x7f`（0 下向き閉、50 開、100 上向き閉）、`light_level=p[9]>>4` |
+
+上の追加機種は仕様書の表からの実装で、実機の広告では未確認。M の添字はいずれも Company ID の後から数える。
 
 値は機種ごとの型付き struct とし、M と S が別々に値を持つ場合は取得済みの部分を区別できる構造にする。未取得は nil または明示的な有無で表し、0 や false は有効な値とする。JSON には取得済みの値を出す。値を持つ `group` の空リストは `[]`。Decoder は結果を返してから Store に反映するので、途中で入力不備が見つかっても部分的な書き込みは残らない。シーケンス番号は値として保存し、重複排除や時刻判定には用いない。
 
