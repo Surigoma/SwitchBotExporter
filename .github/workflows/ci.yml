@@ -1,7 +1,9 @@
 name: CI
 
 on:
-  push:
+  # Protect main requires an up-to-date "Test and build" check on the PR.
+  # Do not also run on push: every PR SHA previously ran this workflow twice
+  # (push + pull_request), and merge ran it a third time on main.
   pull_request:
   workflow_dispatch:
 
@@ -10,7 +12,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify:
@@ -33,13 +35,12 @@ jobs:
           go-version-file: go.mod
 
       - name: Install Task
-        run: |
-          go install github.com/go-task/task/v3/cmd/task@v3.45.4
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+        uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
+        with:
+          version: 3.45.4
 
       - name: Test and lint
         run: |
-          task test
           task lint
           go test -race ./...
           task build
