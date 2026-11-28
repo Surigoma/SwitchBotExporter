@@ -14,7 +14,6 @@
 
 ## 0.1.0 (2026-11-28)
 
-
 ### Features
 
 * add Go SwitchBot BLE Prometheus exporter ([bedc896](https://github.com/Surigoma/SwitchBotExporter/commit/bedc8969b58d5f5fc6f498e5c6057d894a8e4696))

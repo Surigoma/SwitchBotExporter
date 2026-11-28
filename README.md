@@ -23,7 +23,7 @@ tar -xzf switchbot-exporter-linux-armv6.tar.gz
 ./switchbot-exporter-linux-armv6 version
 ```
 
-公開済みリリースがなければ、ソースからビルドできます。ビルドには `go.mod` が指定する Go 1.25 以上と [Task](https://taskfile.dev/docs/installation) が必要です。
+公開済みリリースがなければ、ソースからビルドできます。ビルドには `go.mod` が指定する Go 1.26.0 以上と [Task](https://taskfile.dev/docs/installation) が必要です。
 
 ```sh
 task build-linux ARCH=amd64
@@ -32,11 +32,11 @@ task build-linux ARCH=arm ARM_VERSION=7
 task build-armv6
 ```
 
-対象機器に `dist/switchbot-exporter-linux-<対象>` を転送します。ビルドするホストと実行する Linux ホストが同じ場合は `task build` で `dist/switchbot-exporter` を生成できます。ほかのアーキテクチャの指定方法は [Linux の配布形式](docs/SPEC/release.md#配布形式) を参照してください。
+対象機器に `dist/switchbot-exporter-linux-<対象>` を転送します。ビルドするホストと実行する Linux ホストが同じ場合は `task build` で `dist/switchbot-exporter` を生成できます。ほかのアーキテクチャの指定方法は [Linux の配布形式](docs/guides/release.md#配布形式) を参照してください。
 
 ### 2. 機器を見つける
 
-Linux ホストで単発スキャンを行います。既定のアダプターは `hci0`、スキャン時間は 10 秒です。結果の JSON のキーが機器の MAC アドレスです。
+Linux ホストで単発スキャンを行います。既定のアダプターは `hci0`、スキャン時間は 10 秒です。結果の JSON のキーが機器の MAC アドレスです。`{}` の場合は [Linux 運用ガイド](docs/guides/operations.md#広告を診断する) を参照してください。
 
 ```sh
 ./switchbot-exporter-linux-armv6 scan
@@ -58,21 +58,19 @@ Linux ホスト上でまずループバックに待ち受けて動作を確認�
 ./switchbot-exporter-linux-armv6 --config ./nametable.json --listen 127.0.0.1:8000
 ```
 
-別のターミナルで、初回のスキャン完了後に以下を実行します。`switchbot_scan_success 1` は最後のスキャンが成功したことを示します。対象機器からデータを受信すると、機器別系列も表示されます。
+別のターミナルで、初回のスキャン完了後に以下を実行します。
 
 ```sh
 curl -fsS http://127.0.0.1:8000/metrics
 ```
 
+`switchbot_scan_success 1` は直近のスキャンが成功したことを示します。対象機器からデータを受信すると機器別系列も表示されます。
+
 `--listen` を省略した場合は全インターフェースの 8000 番で待ち受けます。Prometheus からは Linux ホストのアドレスと待受ポートをターゲットにし、`/metrics` を取得します。
 
-## 目的別ガイド
+## 次に読む
 
-| やりたいこと | 参照先 |
-| --- | --- |
-| 実行オプションや JSON 形式を調べる | [CLI と設定](docs/SPEC/operations.md#cli-と設定) |
-| systemd 配備、Python 版からの移行、切り戻し | [Pi での運用](docs/SPEC/operations.md#systemd-で稼働させる) |
-| 対応機器、デコードや Prometheus の互換仕様を調べる | [仕様書](SPEC.md) |
-| 機種を追加する、テストや CI を実行する | [開発と検証](docs/SPEC/verification.md) |
-| GitHub 上でリリースを作成・再作成する | [リリース作業](docs/SPEC/release.md) |
-| 実機で確認済みの項目を調べる | [検証結果](docs/SPEC/verification.md#確認済みの結果) |
+- 常駐サービスとして稼働させる、または Python 版から切り替える。[systemd での配備](docs/guides/operations.md#systemd-で稼働させる)・[切替と切り戻し](docs/guides/operations.md#切替と切り戻し)
+- 実行フラグ、設定ファイル、JSON 形式を確認する。[CLI と設定の仕様](docs/SPEC/cli.md)
+- 対応機種、メトリクス名、互換性を調べる。[仕様書](SPEC.md)
+- 開発手順、リリース手順、実機の検証結果を探す。[ドキュメント一覧](docs/README.md)
