@@ -21,6 +21,9 @@ const (
 	busInterface        = "org.freedesktop.DBus"
 	signalCapacity      = 256
 	callTimeout         = 3 * time.Second
+	// maxDeviceMatches bounds the per-device match rules. Larger name tables
+	// subscribe to every device under the adapter instead.
+	maxDeviceMatches = 64
 )
 
 var adapterName = regexp.MustCompile("^hci[0-9]+$")
@@ -31,16 +34,22 @@ func ValidAdapterName(adapter string) bool {
 }
 
 // ScanBlueZ opens one private discovery session. Closing the connection also
-// releases the session if a start or stop reply is lost.
-func ScanBlueZ(ctx context.Context, adapter, mac string, duration time.Duration, emit func(Observation) error) (scanErr error) {
+// releases the session if a start or stop reply is lost. Non-empty targets
+// limit the session to those MAC addresses, and D-Bus then delivers only their
+// device notifications to this connection.
+func ScanBlueZ(ctx context.Context, adapter string, targets []string, duration time.Duration, emit func(Observation) error) (scanErr error) {
 	if !ValidAdapterName(adapter) || duration <= 0 || emit == nil {
 		return errors.New("expected an hci adapter, a positive scan duration and an observation handler")
 	}
-	if mac != "" {
-		var ok bool
-		mac, ok = NormalizeMAC(mac)
-		if !ok {
-			return errors.New("invalid target MAC address")
+	var wanted map[string]struct{}
+	if len(targets) > 0 {
+		wanted = make(map[string]struct{}, len(targets))
+		for _, target := range targets {
+			mac, ok := NormalizeMAC(target)
+			if !ok {
+				return errors.New("invalid target MAC address")
+			}
+			wanted[mac] = struct{}{}
 		}
 	}
 	path := dbus.ObjectPath("/org/bluez/" + adapter)
@@ -51,7 +60,7 @@ func ScanBlueZ(ctx context.Context, adapter, mac string, duration time.Duration,
 	}
 	defer conn.Close()
 
-	owner, devices, err := prepare(ctx, conn, path)
+	owner, devices, err := prepare(ctx, conn, path, wanted)
 	if err != nil {
 		return err
 	}
@@ -81,7 +90,7 @@ func ScanBlueZ(ctx context.Context, adapter, mac string, duration time.Duration,
 		if !event.at.Before(deadline) {
 			return nil
 		}
-		return devices.handle(ctx, conn, owner, mac, event, emit)
+		return devices.handle(ctx, conn, owner, event, emit)
 	}
 	for {
 		select {
@@ -138,12 +147,25 @@ func connect(ctx context.Context, queue *signalQueue) (*dbus.Conn, error) {
 	return conn, nil
 }
 
-func prepare(ctx context.Context, conn *dbus.Conn, adapter dbus.ObjectPath) (string, *tracker, error) {
+func prepare(ctx context.Context, conn *dbus.Conn, adapter dbus.ObjectPath, targets map[string]struct{}) (string, *tracker, error) {
+	changes := func(path dbus.MatchOption) []dbus.MatchOption {
+		return []dbus.MatchOption{dbus.WithMatchSender(bluezName), dbus.WithMatchInterface(propertiesInterface), dbus.WithMatchMember("PropertiesChanged"), path}
+	}
 	matches := [][]dbus.MatchOption{
 		{dbus.WithMatchSender(bluezName), dbus.WithMatchInterface(objectManager), dbus.WithMatchMember("InterfacesAdded")},
 		{dbus.WithMatchSender(bluezName), dbus.WithMatchInterface(objectManager), dbus.WithMatchMember("InterfacesRemoved")},
-		{dbus.WithMatchSender(bluezName), dbus.WithMatchInterface(propertiesInterface), dbus.WithMatchMember("PropertiesChanged"), dbus.WithMatchPathNamespace(adapter)},
 		{dbus.WithMatchSender(busInterface), dbus.WithMatchInterface(busInterface), dbus.WithMatchMember("NameOwnerChanged"), dbus.WithMatchArg(0, bluezName)},
+	}
+	// Most notifications come from devices outside the name table. Matching
+	// their paths keeps the bus from delivering, and godbus from decoding,
+	// those notifications at all.
+	if len(targets) == 0 || len(targets) > maxDeviceMatches {
+		matches = append(matches, changes(dbus.WithMatchPathNamespace(adapter)))
+	} else {
+		matches = append(matches, changes(dbus.WithMatchObjectPath(adapter)))
+		for mac := range targets {
+			matches = append(matches, changes(dbus.WithMatchObjectPath(DevicePath(adapter, mac))))
+		}
 	}
 	setup, cancel := context.WithTimeout(ctx, callTimeout)
 	defer cancel()
@@ -169,7 +191,7 @@ func prepare(ctx context.Context, conn *dbus.Conn, adapter dbus.ObjectPath) (str
 		return "", nil, fmt.Errorf("Bluetooth adapter %s is not powered", adapter)
 	}
 
-	devices := &tracker{adapter: adapter, devices: make(map[dbus.ObjectPath]device)}
+	devices := &tracker{adapter: adapter, targets: targets, devices: make(map[dbus.ObjectPath]device)}
 	for path, interfaces := range objects {
 		if fields, exists := interfaces[deviceInterface]; exists {
 			devices.remember(path, fields)
@@ -184,7 +206,12 @@ func call(ctx context.Context, object dbus.BusObject, method string, args ...any
 	return object.CallWithContext(ctx, method, 0, args...)
 }
 
-func (t *tracker) handle(ctx context.Context, conn *dbus.Conn, owner, target string, event queuedSignal, emit func(Observation) error) error {
+// DevicePath returns the object path BlueZ uses for a normalized MAC address.
+func DevicePath(adapter dbus.ObjectPath, mac string) dbus.ObjectPath {
+	return adapter + "/dev_" + dbus.ObjectPath(strings.ToUpper(strings.ReplaceAll(mac, ":", "_")))
+}
+
+func (t *tracker) handle(ctx context.Context, conn *dbus.Conn, owner string, event queuedSignal, emit func(Observation) error) error {
 	signal := event.signal
 	if signal.Sender == busInterface && signal.Name == busInterface+".NameOwnerChanged" && len(signal.Body) == 3 {
 		name, nameOK := signal.Body[0].(string)
@@ -204,14 +231,14 @@ func (t *tracker) handle(ctx context.Context, conn *dbus.Conn, owner, target str
 	switch signal.Name {
 	case objectManager + ".InterfacesAdded":
 		var interfaces map[string]properties
-		if err := dbus.Store(signal.Body, &path, &interfaces); err != nil {
+		if !bodyAs(signal.Body, &path, &interfaces) {
 			return nil
 		}
 		fields = interfaces[deviceInterface]
 		source = "interfacesAdded"
 	case objectManager + ".InterfacesRemoved":
 		var interfaces []string
-		if err := dbus.Store(signal.Body, &path, &interfaces); err != nil {
+		if !bodyAs(signal.Body, &path, &interfaces) {
 			return nil
 		}
 		for _, name := range interfaces {
@@ -225,7 +252,7 @@ func (t *tracker) handle(ctx context.Context, conn *dbus.Conn, owner, target str
 		return nil
 	case propertiesInterface + ".PropertiesChanged":
 		var name string
-		if err := dbus.Store(signal.Body, &name, &fields, &invalidated); err != nil {
+		if !bodyAs(signal.Body, &name, &fields, &invalidated) {
 			return nil
 		}
 		path = signal.Path
@@ -262,12 +289,46 @@ func (t *tracker) handle(ctx context.Context, conn *dbus.Conn, owner, target str
 	if len(fields) == 0 && len(invalidated) == 0 {
 		return nil
 	}
-	if observation, ok := t.observe(path, fields, invalidated, event.at, source, target); ok {
+	if observation, ok := t.observe(path, fields, invalidated, event.at, source); ok {
 		if err := emit(observation); err != nil {
 			return fmt.Errorf("write BLE observation: %w", err)
 		}
 	}
 	return nil
+}
+
+// bodyAs assigns a signal body to the destinations. godbus already decodes
+// a{sv} and the other BlueZ signatures into the destination types, so a type
+// assertion avoids the reflection in dbus.Store, which was about a tenth of
+// the exporter's CPU on a Raspberry Pi Zero W. Other shapes fall back to
+// dbus.Store.
+func bodyAs(body []any, destinations ...any) bool {
+	if len(body) != len(destinations) {
+		return false
+	}
+	fast := true
+	for i, destination := range destinations {
+		switch target := destination.(type) {
+		case *string:
+			value, ok := body[i].(string)
+			*target, fast = value, fast && ok
+		case *dbus.ObjectPath:
+			value, ok := body[i].(dbus.ObjectPath)
+			*target, fast = value, fast && ok
+		case *properties:
+			value, ok := body[i].(properties)
+			*target, fast = value, fast && ok
+		case *map[string]properties:
+			value, ok := body[i].(map[string]properties)
+			*target, fast = value, fast && ok
+		case *[]string:
+			value, ok := body[i].([]string)
+			*target, fast = value, fast && ok
+		default:
+			fast = false
+		}
+	}
+	return fast || dbus.Store(body, destinations...) == nil
 }
 
 type queuedSignal struct {

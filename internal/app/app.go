@@ -15,7 +15,9 @@ import (
 	"github.com/Surigoma/SwitchBotExporter/internal/metrics"
 )
 
-type ScanFunc func(context.Context, string, string, time.Duration, func(ble.Observation) error) error
+// ScanFunc receives advertisements for a duration. Non-empty targets limit
+// the scan to those MAC addresses.
+type ScanFunc func(ctx context.Context, adapter string, targets []string, duration time.Duration, emit func(ble.Observation) error) error
 
 type Settings struct {
 	Adapter  string
@@ -93,7 +95,7 @@ func (a App) runScans(ctx context.Context, settings Settings, store *device.Stor
 		}
 		start := time.Now()
 		seen := make(map[string]struct{})
-		err := a.Scan(ctx, settings.Adapter, "", settings.Duration,
+		err := a.Scan(ctx, settings.Adapter, targets(settings.Names), settings.Duration,
 			a.observer(settings.Names, store, seen))
 		if ctx.Err() != nil {
 			return
@@ -145,7 +147,7 @@ func (a App) ScanOnce(ctx context.Context, settings Settings, raw bool, stdout i
 			return nil
 		}
 	}
-	if err := a.Scan(ctx, settings.Adapter, "", settings.Duration, observe); err != nil {
+	if err := a.Scan(ctx, settings.Adapter, targets(settings.Names), settings.Duration, observe); err != nil {
 		return err
 	}
 	if raw {
@@ -170,6 +172,19 @@ func (a App) observer(names map[string]string, store *device.Store, seen map[str
 		}
 		return nil
 	}
+}
+
+// targets lists the name table's MAC addresses. A nil table means every
+// device.
+func targets(names map[string]string) []string {
+	if names == nil {
+		return nil
+	}
+	macs := make([]string, 0, len(names))
+	for mac := range names {
+		macs = append(macs, mac)
+	}
+	return macs
 }
 
 func allowed(names map[string]string, mac string) bool {

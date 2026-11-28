@@ -12,6 +12,8 @@ task build-linux ARCH=amd64
 
 `task test` は Go のテスト、`task lint` は `gofmt` と `go vet` を実行する。race detector は対応する開発ホストで実行する。Linux の配布対象とアーカイブ形式は [リリース作業](release.md) を参照する。
 
+CPU の内訳を実機で調べるときは `-tags pprof` でビルドし、環境変数 `SWITCHBOT_PPROF=127.0.0.1:6060` を与えて起動する。`net/http/pprof` がその番地で応答するので、`curl -o cpu.pb.gz 'http://127.0.0.1:6060/debug/pprof/profile?seconds=120'` で採取し、手元の `go tool pprof -top -cum cpu.pb.gz` で読む。タグなしの配布ビルドには含まれない。基準実機での測定例は [ストリーム化の記録](stream.md#負荷の内訳) にある。
+
 ## 機種の追加
 
 1. `internal/models/<機種>/` にデコーダーを置き、必要な場合は固有系列の変換も同じディレクトリに置く。[Meter TH の実装](../../internal/models/meterth/) が例になる。
