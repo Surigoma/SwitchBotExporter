@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/Surigoma/SwitchBotExporter/compare/v0.1.0...v0.2.0) (2026-11-28)
+
+
+### Features
+
+* add models from the SwitchBot BLE API spec ([#8](https://github.com/Surigoma/SwitchBotExporter/issues/8)) ([b4efafa](https://github.com/Surigoma/SwitchBotExporter/commit/b4efafad6a21292fe965dc6a025f96d8a11939a2))
+
+
+### Performance Improvements
+
+* receive only name-table devices from BlueZ ([#10](https://github.com/Surigoma/SwitchBotExporter/issues/10)) ([39eb449](https://github.com/Surigoma/SwitchBotExporter/commit/39eb449569861f5e594478c735fba894af2497ec))
+
 ## 0.1.0 (2026-11-28)
 
 
